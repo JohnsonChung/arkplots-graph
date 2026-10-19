@@ -1,0 +1,11 @@
+# Personal reading progress (isolated per user)
+user_data/Read_record.json
+
+# Generated Obsidian Vault (local output)
+obsidian/ArkPlots Vault/
+
+# Python cache & OS files
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db

@@ -1,0 +1,2113 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ArkPlots-Graph｜終末地工業・塔衛二拓荒工程藍圖 (Arknights: Endfield AIC Edition)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+<style>
+  :root {
+    /* Talos-II Dark Orbital Probe & AIC HUD */
+    --background: #090a0e;
+    --background-grid: rgba(255, 255, 255, 0.045);
+    --background-subgrid: rgba(0, 240, 255, 0.025);
+    --card: #12141b;
+    --card-inner: #0c0e13;
+    --foreground: #f2f3f5;
+    --muted-foreground: #8a929e;
+    --primary: #ffe600;
+    --primary-foreground: #0f1014;
+    --secondary: #1b1f2a;
+    --secondary-foreground: #d5dae2;
+    --wuling-cyan: #00f0ff;
+    --hazard-orange: #ff5500;
+    --aic-green: #22c55e;
+    --border: rgba(255, 255, 255, 0.14);
+    --border-strong: #ffe600;
+    --hard-shadow: #020305;
+  }
+  html.light {
+    /* Endfield Official Web Aesthetic — Cream-Paper Blueprint & Ink Black + Signal Yellow */
+    --background: #ecebe6;
+    --background-grid: rgba(20, 21, 23, 0.075);
+    --background-subgrid: rgba(0, 119, 153, 0.04);
+    --card: #f7f6f2;
+    --card-inner: #e2e0d8;
+    --foreground: #141517;
+    --muted-foreground: #62656a;
+    --primary: #ffe600;
+    --primary-foreground: #141517;
+    --secondary: #dfddd4;
+    --secondary-foreground: #141517;
+    --wuling-cyan: #007799;
+    --hazard-orange: #e63e00;
+    --aic-green: #15803d;
+    --border: #c4c2b8;
+    --border-strong: #141517;
+    --hard-shadow: #141517;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--background);
+    background-image:
+      linear-gradient(to right, var(--background-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--background-grid) 1px, transparent 1px),
+      linear-gradient(to right, var(--background-subgrid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--background-subgrid) 1px, transparent 1px);
+    background-size: 64px 64px, 64px 64px, 16px 16px, 16px 16px;
+    color: var(--foreground);
+    font-family: "Noto Sans TC", "Chakra Petch", "JetBrains Mono", system-ui, -apple-system, sans-serif;
+    letter-spacing: 0.02em;
+    overflow-x: hidden;
+  }
+
+  .font-tech {
+    font-family: "Chakra Petch", "JetBrains Mono", monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Endfield Engineering Blueprint Crosshair & Scan Overlay */
+  #endfieldOverlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background:
+      linear-gradient(180deg, rgba(255, 230, 0, 0.02) 0%, transparent 12%, transparent 88%, rgba(0, 240, 255, 0.025) 100%),
+      repeating-linear-gradient(0deg, rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 3px, rgba(255, 230, 0, 0.018) 3px, rgba(255, 230, 0, 0.018) 4px);
+  }
+  #endfieldOverlay::before {
+    content: "ENDFIELD INDUSTRIES // TALOS-II AUTOMATED INDUSTRY COMPLEX // TELEMETRY LINK ACTIVE";
+    position: fixed;
+    bottom: 6px;
+    right: 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--muted-foreground);
+    opacity: 0.65;
+  }
+  body.overlay-off #endfieldOverlay {
+    display: none !important;
+  }
+
+  /* Signature Yellow-and-Black 45° Hazard Stripes */
+  .hazard-stripe {
+    background: repeating-linear-gradient(
+      -45deg,
+      #141517 0px,
+      #141517 8px,
+      #ffe600 8px,
+      #ffe600 16px
+    );
+  }
+
+  /* Print Registration Color Bars (4-color Endfield manual marks) */
+  .color-bars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    vertical-align: middle;
+  }
+  .color-bars span {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border: 1px solid rgba(0,0,0,0.35);
+  }
+  .color-bars span:nth-child(1) { background: #ffe600; }
+  .color-bars span:nth-child(2) { background: #ff5500; }
+  .color-bars span:nth-child(3) { background: #00f0ff; }
+  .color-bars span:nth-child(4) { background: var(--foreground); }
+
+  /* Endfield Industrial Panel with L-Brackets & Hard Offset Shadow */
+  .endfield-panel {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 0 !important;
+    position: relative;
+    box-shadow: 4px 4px 0px var(--hard-shadow);
+  }
+  .endfield-panel::before {
+    content: "";
+    position: absolute;
+    top: -1.5px;
+    left: -1.5px;
+    width: 10px;
+    height: 10px;
+    border-top: 3px solid var(--primary);
+    border-left: 3px solid var(--primary);
+    pointer-events: none;
+  }
+  .endfield-panel::after {
+    content: "";
+    position: absolute;
+    bottom: -1.5px;
+    right: -1.5px;
+    width: 10px;
+    height: 10px;
+    border-bottom: 3px solid var(--wuling-cyan);
+    border-right: 3px solid var(--wuling-cyan);
+    pointer-events: none;
+  }
+
+  .endfield-subbox {
+    background: var(--card-inner);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 0 !important;
+  }
+
+  /* Endfield Section Header Ribbon */
+  .endfield-section-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 10px;
+    background: var(--secondary);
+    border: 1.5px solid var(--border);
+    border-left: 4px solid var(--primary);
+    box-shadow: 2px 2px 0 var(--hard-shadow);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--foreground);
+    letter-spacing: 0.04em;
+  }
+
+  /* Tactile Industrial Buttons & Chips */
+  .chip {
+    border: 1.5px solid var(--border);
+    border-radius: 0 !important;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    background: var(--secondary);
+    color: var(--foreground);
+    box-shadow: 2px 2px 0 var(--hard-shadow);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: inherit;
+    transition: transform 0.06s, border-color 0.1s, background-color 0.1s;
+  }
+  .chip:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  html.light .chip:hover {
+    border-color: #141517;
+    background: #ffe600;
+    color: #141517;
+  }
+  .chip:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--hard-shadow);
+  }
+  .chip[data-on="1"] {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--border-strong);
+    font-weight: 800;
+    box-shadow: 3px 3px 0 var(--hard-shadow);
+  }
+
+  .btn-primary {
+    border: 1.5px solid #141517;
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-radius: 0 !important;
+    padding: 7px 11px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 3px 3px 0 var(--hard-shadow);
+    transition: transform 0.06s, filter 0.1s;
+  }
+  .btn-primary:hover {
+    filter: brightness(1.06);
+  }
+  .btn-primary:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--hard-shadow);
+  }
+
+  .btn-outline {
+    border: 1.5px solid var(--border);
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+    border-radius: 0 !important;
+    padding: 7px 11px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 3px 3px 0 var(--hard-shadow);
+    transition: transform 0.06s, border-color 0.1s;
+  }
+  .btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  html.light .btn-outline:hover {
+    border-color: #141517;
+    background: #ffe600;
+    color: #141517;
+  }
+  .btn-outline:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--hard-shadow);
+  }
+
+  .endfield-cursor {
+    display: inline-block;
+    padding: 0 4px;
+    background: var(--primary);
+    color: #141517;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 800;
+    margin-right: 5px;
+  }
+
+  .opt {
+    border: 1.5px solid var(--border);
+    background: var(--card-inner);
+    border-radius: 0 !important;
+    padding: 8px 10px;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 2px 2px 0 var(--hard-shadow);
+    transition: border-color 0.1s, background-color 0.1s;
+  }
+  .opt:hover {
+    border-color: var(--wuling-cyan);
+  }
+  .opt[data-on="1"] {
+    border-color: var(--primary);
+    background: var(--secondary);
+    box-shadow: 3px 3px 0 var(--hard-shadow), inset 3px 0 0 var(--primary);
+  }
+  html.light .opt[data-on="1"] {
+    border-color: #141517;
+    background: #fff9c2;
+    box-shadow: 3px 3px 0 #141517, inset 4px 0 0 #141517;
+  }
+
+  /* Industrial Swatch Block */
+  .sw {
+    width: 12px;
+    height: 12px;
+    border-radius: 0 !important;
+    border: 1.5px solid var(--foreground);
+    box-shadow: 1px 1px 0 var(--hard-shadow);
+    display: inline-block;
+    flex: none;
+  }
+
+  /* AIC Power Grid Progress Bar */
+  .aic-bar-track {
+    height: 14px;
+    background: #07080c;
+    border: 1.5px solid var(--border);
+    padding: 2px;
+    display: flex;
+    gap: 2px;
+  }
+  html.light .aic-bar-track {
+    background: #d2cfc4;
+    border-color: #141517;
+  }
+  .aic-bar-fill {
+    height: 100%;
+    background: repeating-linear-gradient(
+      90deg,
+      #ffe600 0px,
+      #ffe600 8px,
+      #ff9900 8px,
+      #ff9900 10px
+    );
+    transition: width 0.25s ease-out;
+  }
+
+  /* Blueprint Jump Pill */
+  .jump-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 0 !important;
+    border: 1px solid var(--border);
+    background: var(--card-inner);
+    color: var(--foreground);
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--hard-shadow);
+    transition: transform 0.05s, border-color 0.1s;
+  }
+  .jump-pill:hover {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #141517;
+    font-weight: 700;
+  }
+  .jump-pill:active {
+    transform: translate(1px, 1px);
+  }
+
+  /* Industrial Range Slider & Inputs */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--card-inner);
+    height: 8px;
+    border: 1px solid var(--border);
+    margin-top: 6px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 18px;
+    background: var(--primary);
+    border: 1.5px solid #141517;
+    box-shadow: 2px 2px 0 var(--hard-shadow);
+    cursor: pointer;
+  }
+  input[type="checkbox"] {
+    accent-color: var(--primary);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+  }
+
+  .drop-active {
+    outline: 3px dashed var(--primary);
+    outline-offset: -4px;
+  }
+  code {
+    font-size: 11.5px;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    color: var(--wuling-cyan);
+  }
+  #graph { cursor: crosshair; touch-action: none; }
+  #graph:active { cursor: grabbing; }
+
+  /* Native CSS fallbacks for standalone file:// and offline usage */
+  .hidden { display: none !important; }
+  .block { display: block; }
+  .flex { display: flex; }
+  .flex-1 { flex: 1 1 0%; }
+  .flex-wrap { flex-wrap: wrap; }
+  .items-center { align-items: center; }
+  .items-start { align-items: flex-start; }
+  .items-end { align-items: flex-end; }
+  .justify-between { justify-content: space-between; }
+  .gap-1 { gap: 0.25rem; }
+  .gap-1\.5 { gap: 0.375rem; }
+  .gap-2 { gap: 0.5rem; }
+  .gap-3 { gap: 0.75rem; }
+  .gap-4 { gap: 1rem; }
+  .grid { display: grid; }
+  .grid-cols-1 { grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 1024px) {
+    .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .lg\:grid-cols-\[360px_1fr\] { grid-template-columns: 360px minmax(0, 1fr); }
+  }
+  @media (min-width: 1280px) {
+    .xl\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .xl\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.25rem; }
+  .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.375rem; }
+  .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+  .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+  .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+  .p-2 { padding: 0.5rem; }
+  .p-2\.5 { padding: 0.625rem; }
+  .p-3 { padding: 0.75rem; }
+  .p-3\.5 { padding: 0.875rem; }
+  .p-4 { padding: 1rem; }
+  .p-5 { padding: 1.25rem; }
+  .px-1\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+  .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+  .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+  .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+  .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+  .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+  .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+  .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+  .pt-0\.5 { padding-top: 0.125rem; }
+  .pt-1 { padding-top: 0.25rem; }
+  .pt-2 { padding-top: 0.5rem; }
+  .mt-0\.5 { margin-top: 0.125rem; }
+  .mt-1 { margin-top: 0.25rem; }
+  .mt-2 { margin-top: 0.5rem; }
+  .mt-3 { margin-top: 0.75rem; }
+  .mx-auto { margin-left: auto; margin-right: auto; }
+  .max-w-\[1600px\] { max-width: 1600px; }
+  .max-w-\[280px\] { max-width: 280px; }
+  .max-w-\[340px\] { max-width: 340px; }
+  .min-w-0 { min-width: 0; }
+  .w-full { width: 100%; }
+  .h-48 { height: 12rem; }
+  .border { border: 1.5px solid var(--border); }
+  .border-t { border-top: 1px solid var(--border); }
+  .bg-\[var\(--background\)\] { background-color: var(--background); }
+  .bg-\[var\(--card\)\], .bg-\[var\(--card\)\]\/90 { background-color: var(--card); }
+  .bg-\[var\(--secondary\)\] { background-color: var(--secondary); }
+  .text-\[var\(--foreground\)\] { color: var(--foreground); }
+  .text-\[var\(--secondary-foreground\)\] { color: var(--secondary-foreground); }
+  .text-\[var\(--muted-foreground\)\] { color: var(--muted-foreground); }
+  .text-\[10px\] { font-size: 10px; }
+  .text-\[11px\] { font-size: 11px; }
+  .text-xs { font-size: 0.78rem; line-height: 1.15rem; }
+  .text-sm { font-size: 0.9rem; line-height: 1.3rem; }
+  .text-base { font-size: 1rem; line-height: 1.5rem; }
+  .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+  .font-medium { font-weight: 500; }
+  .font-semibold { font-weight: 700; }
+  .font-mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+  .text-right { text-align: right; }
+  .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .underline { text-decoration: underline; }
+  .leading-relaxed { line-height: 1.55; }
+  .relative { position: relative; }
+  .absolute { position: absolute; }
+  .top-3 { top: 0.75rem; }
+  .left-3 { left: 0.75rem; }
+  .right-3 { right: 0.75rem; }
+  .bottom-3 { bottom: 0.75rem; }
+  .overflow-hidden { overflow: hidden; }
+  .overflow-y-auto { overflow-y: auto; }
+  .pointer-events-none { pointer-events: none; }
+  .pointer-events-auto { pointer-events: auto; }
+  .cursor-pointer { cursor: pointer; }
+  .endfield-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-family: "JetBrains Mono", "Noto Sans TC", monospace;
+    border: 1px solid var(--border);
+    background: var(--secondary);
+    box-shadow: 2px 2px 0 var(--hard-shadow);
+  }
+</style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] p-4">
+<div id="endfieldOverlay" aria-hidden="true"></div>
+
+<div id="appRoot" class="max-w-[1600px] mx-auto space-y-4">
+
+  <!-- ENDFIELD INDUSTRIES // TALOS-II AIC TERMINAL HEADER -->
+  <header class="endfield-panel overflow-hidden">
+    <!-- Top Hazard Warning Strip -->
+    <div class="hazard-stripe" style="height:6px;width:100%"></div>
+    <div class="p-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="px-2 py-0.5 text-xs font-tech font-semibold" style="background:var(--primary);color:#141517;border:1.5px solid #141517;box-shadow:2px 2px 0 var(--hard-shadow)">ENDFIELD // WIP PREVIEW</span>
+          <h1 class="text-xl font-semibold tracking-wider">
+            🛰️ ArkPlots-Graph 終末地工業・工程藍圖（開發中預覽版）
+          </h1>
+          <span class="endfield-tag" style="color:var(--hazard-orange)">🚧 WIP PREVIEW</span>
+          <span class="endfield-tag" style="color:var(--wuling-cyan)">TALOS-II TOPOGRAPHICAL GRAPH</span>
+          <span class="color-bars" title="Endfield Industrial Print Registration"><span></span><span></span><span></span><span></span></span>
+        </div>
+        <p class="text-xs text-[var(--muted-foreground)] mt-1.5">
+          <span class="endfield-cursor">AIC</span>終末地重工與工程藍圖視覺系統（開發預覽）：單向讀取 <code>Read_record.json</code>，即時標定上游前置鏈（武陵青實線）與下一層後續節點（終末地訊號黃虛線）。
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-1.5">
+        <a href="../index.html" class="chip" style="text-decoration:none" title="返回預設 PRTS 羅德島戰術終端版">♟️ PRTS 預設版</a>
+        <a href="ArkPlots-Graph-dev.html" class="chip" style="text-decoration:none" title="切換至外觀簡單的開發測試版">🛠️ 開發簡約版</a>
+        <a href="#settingsSection" class="chip" style="text-decoration:none" title="捲動至下方設定與資料來源區">⚙️ 工業終端設定</a>
+        <button id="blueprintOverlayBtn" class="chip" data-on="1" title="切換終末地工程藍圖掃描線與遙測浮水印">📐 工程藍圖濾鏡: ON</button>
+        <button id="themeBtn" class="chip" title="切換塔衛二深色探測 HUD／終末地官方淺色工程圖紙">🌗 探測深色 / 工程圖紙</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 1. Primary Hero Area: Full-Width Talos-II Engineering Blueprint Canvas -->
+  <main class="min-w-0">
+    <div class="endfield-panel overflow-hidden relative" style="padding:3px">
+      <!-- Top Blueprint Telemetry Banner -->
+      <div class="flex flex-wrap items-center justify-between px-3 py-1.5 text-xs" style="background:var(--secondary);border-bottom:1.5px solid var(--border)">
+        <div class="flex items-center gap-2">
+          <span class="color-bars"><span></span><span></span><span></span><span></span></span>
+          <span class="font-tech text-[11px] font-semibold" style="color:var(--primary)">ENDFIELD INDUSTRIES // TALOS-II SECTOR TOPOGRAPHY</span>
+          <span class="text-[var(--muted-foreground)] font-mono text-[11px]">｜AIC RELAY NETWORK [133 NODES]</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 text-[11px] font-mono">
+          <span><span style="color:#22c55e">■</span> ARCHIVED (已讀)</span>
+          <span><span style="color:#00f0ff">◆</span> AIC READY (可出擊)</span>
+          <span><span style="color:#ffe600">▲</span> SIGNAL QUEUED (計劃讀)</span>
+          <span><span style="color:#ff5500">✖</span> PREREQ LOCKED (缺前置)</span>
+          <span><span style="color:var(--wuling-cyan)">━━</span> 必讀前置（實線）</span>
+          <span><span style="color:var(--primary)">╌╌</span> 下一層後續（虛線）</span>
+        </div>
+      </div>
+
+      <div class="relative">
+        <canvas id="graph" class="block w-full" style="height:clamp(560px, 72vh, 740px)"></canvas>
+
+        <!-- Top-Left: Compact Active Chain Pill (kept hidden to keep map uncluttered) -->
+        <div id="sel" class="hidden absolute top-3 left-3 text-xs endfield-panel px-3 py-2 max-w-[340px] pointer-events-none" style="z-index:15;"></div>
+
+        <!-- Bottom-Left: Blueprint Telemetry Legend Box -->
+        <div id="legend" class="absolute bottom-3 left-3 text-xs endfield-panel px-3 py-2 space-y-1 pointer-events-none" style="z-index:15;"></div>
+
+        <!-- Right Floating Endfield AIC Dossier Inspector (#selCard with Cover Image + Prereqs + Next-Layer) -->
+        <aside id="selCard" class="hidden absolute top-3 right-3 bottom-3 text-xs endfield-panel p-3.5 overflow-y-auto pointer-events-auto" style="width:328px;max-width:calc(100% - 24px);z-index:18;"></aside>
+
+        <!-- Hover Tooltip (Endfield Optical Scanner with Cover Image) -->
+        <div id="tip" class="hidden absolute pointer-events-none text-xs endfield-panel px-3 py-2 max-w-[280px]" style="z-index:20;"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 2. Secondary Area: 4-Column Endfield AIC Settings & Obsidian Config Grid -->
+  <section id="settingsSection" class="space-y-3 pt-1">
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <h2 class="endfield-section-title">
+        <span class="color-bars"><span></span><span></span><span></span><span></span></span>
+        <span>⚙️ 集成工業系統 (AIC) 終端配置與資料鏈路（自動記憶於瀏覽器，無須頻繁更動）</span>
+      </h2>
+      <span class="font-mono text-[11px] text-[var(--muted-foreground)]">SERIAL // ENDFIELD-AIC-GRAPH-V2</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
+      <!-- Column 1: Data Source & Display Filters -->
+      <div class="space-y-4">
+        <section id="sourceCard" class="endfield-panel p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <h2 class="endfield-section-title">💾 ⓪ 工業記憶模組 (DATA MODULE)</h2>
+            <span id="sourceBadge" class="endfield-tag" style="color:var(--primary)">內建快照</span>
+          </div>
+
+          <!-- Endfield AIC Power Grid & Pioneer Progress Box -->
+          <div class="endfield-subbox p-2.5 space-y-1.5 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-tech text-[11px] font-semibold" style="color:var(--primary)" id="aicLvLabel">ENDMINISTRATOR // LV.13</span>
+              <span id="aicLoadText" class="font-mono" style="color:var(--wuling-cyan)">AIC SYNC 013 / 133 (10%)</span>
+            </div>
+            <div>
+              <div class="flex justify-between text-[10px] font-mono text-[var(--muted-foreground)]">
+                <span>TALOS-II PIONEER PROGRESS (已讀進度)</span>
+                <span id="aicReadyText" style="color:var(--primary)">READY NODES: 27</span>
+              </div>
+              <div class="aic-bar-track mt-0.5" title="終末地拓荒閱讀完成度">
+                <div id="aicBarFill" class="aic-bar-fill" style="width: 10%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="boundInfo" class="text-xs endfield-subbox p-2.5 space-y-1">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-[var(--muted-foreground)]">目前紀錄：</span>
+              <span id="recordFileName" class="font-mono font-medium truncate" style="color:var(--primary)">obsidian/user_data/Read_record.json (預設)</span>
+            </div>
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-[var(--muted-foreground)]">進度統計：</span>
+              <span id="recordStats" class="font-medium">—</span>
+            </div>
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-[var(--muted-foreground)]">記憶狀態：</span>
+              <span id="handleStatus" class="text-[var(--muted-foreground)]">尚未綁定本機檔案</span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-1.5">
+            <button id="bindRecordBtn" class="btn-primary flex-1">📌 選擇並記住 Read_record.json</button>
+            <button id="resyncBtn" class="btn-outline" title="直接從已記住的檔案重新讀取，免重選路徑">🔄 重新同步</button>
+          </div>
+
+          <div class="flex items-center justify-between text-xs pt-0.5">
+            <label class="flex items-center gap-1.5 cursor-pointer" title="開啟後，切換回視窗或每 2.5 秒自動檢查已記住的 Read_record.json 是否更新">
+              <input type="checkbox" id="autoWatch"> ⚡ 自動監聽存檔更新
+            </label>
+            <div class="flex items-center gap-2">
+              <button id="bindPlotlineBtn" class="text-xs underline text-[var(--muted-foreground)] hover:text-[var(--foreground)]" style="background:none;border:none;cursor:pointer;padding:0;font-family:inherit">載入 Plotline.json</button>
+              <button id="resetDefaultBtn" class="text-xs underline text-[var(--muted-foreground)] hover:text-[var(--foreground)]" style="background:none;border:none;cursor:pointer;padding:0;font-family:inherit" title="清除快取並還原為內建的 25 筆用戶紀錄快照">重置預設</button>
+            </div>
+          </div>
+
+          <div id="syncMsg" class="hidden text-xs endfield-subbox px-2.5 py-1.5"></div>
+          <p class="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
+            💡 支援直接拖放 <code>Read_record.json</code> 或 <code>Plotline.json</code> 至畫面。首次選取後自動寫入 <code>IndexedDB</code> 工業記憶模組。
+          </p>
+
+          <input type="file" id="recordFileInput" accept=".json,application/json" class="hidden" style="display:none">
+          <input type="file" id="plotlineFileInput" accept=".json,application/json" class="hidden" style="display:none">
+        </section>
+
+        <section class="endfield-panel p-4 space-y-3 text-xs">
+          <h2 class="endfield-section-title">🔍 ③ 藍圖掃描與篩選 (TELEMETRY)</h2>
+          <label class="flex items-center justify-between gap-2 cursor-pointer">顯示拓撲箭頭 (DIRECTION ARROWS) <input type="checkbox" id="arrows" checked></label>
+          <label class="flex items-center justify-between gap-2 cursor-pointer">隱藏支線周邊（漫畫／動畫／其他）<input type="checkbox" id="hidePeriph"></label>
+          <label class="block">節點標籤顯示門檻（文字淡出距離）
+            <input type="range" id="fade" min="0" max="30" value="11" class="w-full">
+          </label>
+          <label class="block">搜尋檔案／陣營／地區
+            <input id="q" placeholder="例：巴别塔、维多利亚、孤星" class="w-full mt-1 px-2.5 py-1.5 endfield-subbox text-[var(--foreground)]" style="font-family:inherit">
+          </label>
+        </section>
+      </div>
+
+      <!-- Column 2: Color Group Presets -->
+      <section class="endfield-panel p-4 space-y-2">
+        <h2 class="endfield-section-title">🎨 ① 終末地工業光譜預設 (SPECTRA)</h2>
+        <div id="presets" class="space-y-2"></div>
+      </section>
+
+      <!-- Column 3: Emoji Schemes & Tactical Insights -->
+      <div class="space-y-4">
+        <section class="endfield-panel p-4 space-y-2">
+          <h2 class="endfield-section-title">🛰️ ② 工業識別標記方案 (IDENTIFIER)</h2>
+          <div id="emojis" class="space-y-2"></div>
+          <div class="flex items-center gap-2 pt-1 text-xs">
+            <span class="text-[var(--muted-foreground)]">標記位置</span>
+            <button class="chip" data-pos="prefix" data-on="1">ID 後・名稱前</button>
+            <button class="chip" data-pos="suffix">名稱後</button>
+          </div>
+        </section>
+
+        <section class="endfield-panel p-4 space-y-2">
+          <h3 class="endfield-section-title">📡 塔衛二拓荒情報簡報 (AIC BRIEFING)</h3>
+          <div id="insight" class="text-sm text-[var(--muted-foreground)] space-y-1.5 pt-1"></div>
+        </section>
+      </div>
+
+      <!-- Column 4: Filename Preview & graph.json Export -->
+      <div class="space-y-4">
+        <section class="endfield-panel p-4 space-y-2">
+          <h3 class="endfield-section-title">🏷️ 檔案命名與連結預覽 (OBSIDIAN TAGS)</h3>
+          <div id="names" class="text-xs space-y-2 pt-1"></div>
+          <div id="warn" class="hidden text-xs endfield-subbox p-2" style="border-color:var(--hazard-orange);color:var(--hazard-orange)"></div>
+        </section>
+
+        <section class="endfield-panel p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <h3 class="endfield-section-title">⚙️ graph.json 群組設定</h3>
+            <button id="copy" class="chip">📋 複製</button>
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)]">群組依序比對、第一個符合者生效。實際寫入時以 Obsidian 產生的欄位為準。</p>
+          <textarea id="json" readonly class="w-full h-48 text-xs font-mono p-2 endfield-subbox text-[var(--foreground)]"></textarea>
+        </section>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/**
+ * ArkPlots-Graph Standalone Client-Side Engine — Arknights: Endfield (Talos-II Heavy Industrial & Blueprint Edition)
+ * - Unidirectional flow: ArkPlots (Plotline.json + Read_record.json) -> ArkPlots-Graph
+ * - Persistent file memory: FileSystemFileHandle in IndexedDB + content/metadata cache in localStorage
+ */
+const DEFAULT_DATA = [{"id": 1, "name": "EP0. 黑暗时代·上", "cls": "main", "stage": 1, "date": "2019-05-01", "country": ["乌萨斯"], "power": ["整合运动", "罗德岛"], "topic": ["源石"], "status": "已读", "nec": [], "ready": true}, {"id": 2, "name": "EP1. 黑暗时代·下", "cls": "main", "stage": 1, "date": "2019-05-01", "country": ["乌萨斯"], "power": ["整合运动", "罗德岛", "使徒"], "topic": ["源石"], "status": "已读", "nec": [1], "ready": true}, {"id": 3, "name": "EP2. 异卵同生", "cls": "main", "stage": 1, "date": "2019-05-01", "country": ["乌萨斯"], "power": ["整合运动", "罗德岛", "企鹅物流", "黑钢国际"], "topic": ["源石"], "status": "已读", "nec": [2], "ready": true}, {"id": 4, "name": "EP3. 二次呼吸", "cls": "main", "stage": 1, "date": "2019-05-01", "country": ["乌萨斯"], "power": ["整合运动", "罗德岛", "黑钢国际", "企鹅物流"], "topic": ["源石"], "status": "已读", "nec": [3], "ready": true}, {"id": 5, "name": "EP4. 急性衰竭", "cls": "main", "stage": 1, "date": "2019-05-01", "country": ["乌萨斯"], "power": ["整合运动"], "topic": ["源石"], "status": "已读", "nec": [4], "ready": true}, {"id": 6, "name": "骑兵与猎人", "cls": "sidestory", "stage": 1, "date": "2019-05-30", "country": ["卡西米尔"], "power": ["整合运动", "萨卡兹", "深海猎人"], "topic": ["海嗣"], "status": "计划读", "nec": [5], "ready": true}, {"id": 7, "name": "EP5. 靶向药物", "cls": "main", "stage": 1, "date": "2019-07-09", "country": ["乌萨斯", "炎"], "power": ["整合运动", "龙门", "罗德岛"], "topic": ["源石"], "status": "计划读", "nec": [5], "ready": true}, {"id": 8, "name": "火蓝之心", "cls": "sidestory", "stage": 1, "date": "2019-08-27", "country": ["汐斯塔"], "power": ["龙门"], "topic": ["夏日活动"], "status": "未读", "nec": [7], "ready": false}, {"id": 9, "name": "战地秘闻", "cls": "ministory", "stage": 1, "date": "2019-10-15", "country": ["乌萨斯", "萨米和因非冰原", "拉特兰"], "power": ["整合运动", "罗德岛", "莱茵生命", "萨卡兹", "黑钢国际"], "topic": ["源石", "邪魔和星门"], "status": "未读", "nec": [7], "ready": false}, {"id": 10, "name": "喧闹法则", "cls": "sidestory", "stage": 1, "date": "2019-11-19", "country": ["炎", "拉特兰", "叙拉古"], "power": ["龙门", "整合运动", "企鹅物流", "鲤氏侦探事务所"], "topic": ["兽主"], "status": "未读", "nec": [7], "ready": false}, {"id": 11, "name": "EP6. 局部坏死", "cls": "main", "stage": 1, "date": "2019-12-24", "country": ["乌萨斯", "炎"], "power": ["整合运动", "罗德岛", "黑钢国际"], "topic": ["源石"], "status": "已读", "nec": [7], "ready": false}, {"id": 12, "name": "烘炉示岁", "cls": "ministory", "stage": 1, "date": "2020-01-09", "country": ["炎"], "power": ["岁", "鲤氏侦探事务所", "龙门"], "topic": ["巨兽", "新年活动"], "status": "未读", "nec": [7, 10], "ready": false}, {"id": 13, "name": "午间逸话", "cls": "ministory", "stage": 1, "date": "2020-02-25", "country": ["萨尔贡", "雷姆必拓", "玻利瓦尔", "卡西米尔", "米诺斯", "莱塔尼亚", "谢拉格"], "power": ["黑钢国际", "萨卡兹", "乌萨斯学生自治团", "莱茵生命", "喀兰贸易", "罗德岛", "行动预备组A1"], "topic": [], "status": "计划读", "nec": [4], "ready": true}, {"id": 14, "name": "艺术之神", "cls": "other", "stage": 1, "date": "2020-04-01", "country": [], "power": ["罗德岛"], "topic": [], "status": "未读", "nec": [4], "ready": true}, {"id": 15, "name": "生于黑夜", "cls": "sidestory", "stage": 1, "date": "2020-04-21", "country": ["乌萨斯", "卡兹戴尔"], "power": ["整合运动", "使徒", "罗德岛", "巴别塔"], "topic": ["源石"], "status": "未读", "nec": [4], "ready": true}, {"id": 16, "name": "EP7. 苦难摇篮", "cls": "main", "stage": 1, "date": "2020-05-01", "country": ["炎", "乌萨斯"], "power": ["龙门", "整合运动", "罗德岛"], "topic": ["源石", "周年活动"], "status": "未读", "nec": [11, 15], "ready": false}, {"id": 17, "name": "乌萨斯的孩子们", "cls": "ministory", "stage": 1, "date": "2020-06-18", "country": ["乌萨斯"], "power": ["整合运动"], "topic": [], "status": "计划读", "nec": [4], "ready": true}, {"id": 18, "name": "沃伦姆德的薄暮", "cls": "sidestory", "stage": 1, "date": "2020-07-09", "country": ["莱塔尼亚", "卡兹戴尔"], "power": ["整合运动", "萨卡兹"], "topic": [], "status": "未读", "nec": [6], "ready": false}, {"id": 19, "name": "密林悍将归来", "cls": "sidestory", "stage": 1, "date": "2020-08-25", "country": ["萨尔贡"], "power": [], "topic": ["兽主", "夏日活动"], "status": "未读", "nec": [4], "ready": true}, {"id": 20, "name": "刻俄柏的灰蕈迷境", "cls": "rougelike", "stage": 1, "date": "2020-08-25", "country": ["雷姆必拓"], "power": ["罗德岛", "整合运动", "锈锤"], "topic": ["兽主"], "status": "计划读", "nec": [13], "ready": false}, {"id": 21, "name": "踏寻往昔之风", "cls": "ministory", "stage": 1, "date": "2020-09-24", "country": ["炎", "卡兹戴尔", "拉特兰", "伊比利亚", "莱塔尼亚", "雷姆必拓", "维多利亚", "东", "叙拉古"], "power": ["罗德岛", "猩红剧团", "梦城堡", "萨卡兹", "黑钢国际"], "topic": ["源石", "兽主"], "status": "计划读", "nec": [4, 6, 10], "ready": false}, {"id": 22, "name": "玛莉娅·临光", "cls": "sidestory", "stage": 1, "date": "2020-10-15", "country": ["卡西米尔"], "power": ["使徒"], "topic": [], "status": "计划读", "nec": [4], "ready": true}, {"id": 23, "name": "EP8. 怒号光明", "cls": "main", "stage": 1, "date": "2020-11-01", "country": ["乌萨斯", "炎"], "power": ["整合运动", "罗德岛", "萨卡兹"], "topic": ["源石", "海嗣", "感谢庆典"], "status": "已读", "nec": [16], "ready": false}, {"id": 24, "name": "孤岛风云", "cls": "sidestory", "stage": 1, "date": "2020-12-17", "country": ["哥伦比亚"], "power": ["莱茵生命"], "topic": [], "status": "计划读", "nec": [13], "ready": false}, {"id": 25, "name": "此地之外", "cls": "ministory", "stage": 1, "date": "2021-01-05", "country": ["拉特兰", "炎", "叙拉古", "维多利亚", "玻利瓦尔", "伊比利亚", "汐斯塔", "哥伦比亚", "伊比利亚", "檀国"], "power": ["龙门", "梦城堡", "锈锤"], "topic": ["海嗣"], "status": "未读", "nec": [10, 18, 21, 6], "ready": false}, {"id": 26, "name": "画中人", "cls": "sidestory", "stage": 1, "date": "2021-02-05", "country": ["炎"], "power": ["岁", "行动预备组A1"], "topic": ["巨兽", "新年活动"], "status": "未读", "nec": [12], "ready": false}, {"id": 27, "name": "源石尘行动", "cls": "sidestory", "stage": 1, "date": "2021-03-09", "country": ["萨尔贡"], "power": ["彩虹小队", "罗德岛", "黑钢国际"], "topic": ["源石", "联动剧情"], "status": "未读", "nec": [4], "ready": true}, {"id": 28, "name": "泰拉说唱之夜！", "cls": "other", "stage": 1, "date": "2021-04-01", "country": ["炎"], "power": ["龙门"], "topic": [], "status": "未读", "nec": [10], "ready": false}, {"id": 29, "name": "遗尘漫步", "cls": "sidestory", "stage": 1, "date": "2021-04-15", "country": ["维多利亚", "乌萨斯", "萨尔贡", "萨米和因非冰原"], "power": [], "topic": ["源石", "邪魔和星门"], "status": "未读", "nec": [23], "ready": true}, {"id": 30, "name": "罗德岛相簿", "cls": "manga", "stage": 1, "date": "2021-04-30", "country": [], "power": ["罗德岛"], "topic": ["游戏外剧情"], "status": "未读", "nec": [4], "ready": true}, {"id": 31, "name": "覆潮之下", "cls": "sidestory", "stage": 1, "date": "2021-05-01", "country": ["伊比利亚", "阿戈尔"], "power": ["罗德岛", "深海猎人"], "topic": ["海嗣"], "status": "已读", "nec": [6, 29, 25], "ready": false}, {"id": 32, "name": "罗德岛闲逛部", "cls": "manga", "stage": 1, "date": "2021-05-14", "country": [], "power": ["罗德岛"], "topic": ["游戏外剧情"], "status": "未读", "nec": [4], "ready": true}, {"id": 33, "name": "灯火序曲", "cls": "ministory", "stage": 1, "date": "2021-06-01", "country": ["莱塔尼亚", "东", "乌萨斯", "卡西米尔", "萨尔贡", "米诺斯", "伊比利亚", "谢拉格"], "power": ["锈锤", "喀兰贸易", "梦城堡"], "topic": ["海嗣"], "status": "未读", "nec": [4], "ready": true}, {"id": 34, "name": "荷谟伊智境", "cls": "other", "stage": 1, "date": "2021-07-02", "country": ["米诺斯"], "power": [], "topic": [], "status": "未读", "nec": [4, 33], "ready": false}, {"id": 35, "name": "罗德岛源石记事——黑钢", "cls": "manga", "stage": 1, "date": "2021-07-08", "country": ["哥伦比亚"], "power": ["罗德岛", "黑钢国际"], "topic": ["游戏外剧情", "源石"], "status": "未读", "nec": [4], "ready": true}, {"id": 36, "name": "如我所见", "cls": "ministory", "stage": 1, "date": "2021-07-13", "country": ["卡兹戴尔", "哥伦比亚", "维多利亚", "卡西米尔"], "power": ["罗德岛", "萨卡兹", "巴别塔", "锈锤"], "topic": ["源石"], "status": "未读", "nec": [23], "ready": true}, {"id": 37, "name": "罗德岛源石记事——莱茵生命", "cls": "manga", "stage": 1, "date": "2021-07-14", "country": ["哥伦比亚"], "power": ["罗德岛", "莱茵生命"], "topic": ["游戏外剧情", "源石"], "status": "未读", "nec": [24, 23], "ready": false}, {"id": 38, "name": "多索雷斯假日", "cls": "sidestory", "stage": 1, "date": "2021-08-03", "country": ["玻利瓦尔", "炎"], "power": ["龙门"], "topic": [], "status": "未读", "nec": [23], "ready": true}, {"id": 39, "name": "EP9. 风暴瞭望", "cls": "main", "stage": 1, "date": "2021-09-17", "country": ["维多利亚", "塔拉和深池"], "power": ["罗德岛"], "topic": [], "status": "未读", "nec": [23], "ready": true}, {"id": 40, "name": "红松林", "cls": "ministory", "stage": 1, "date": "2021-10-15", "country": ["卡西米尔"], "power": [], "topic": [], "status": "未读", "nec": [22], "ready": false}, {"id": 41, "name": "长夜临光", "cls": "sidestory", "stage": 1, "date": "2021-11-01", "country": ["卡西米尔", "萨尔贡"], "power": ["使徒", "罗德岛"], "topic": ["感谢庆典"], "status": "计划读", "nec": [40, 15], "ready": false}, {"id": 42, "name": "风雪过境", "cls": "sidestory", "stage": 2, "date": "2021-12-21", "country": ["谢拉格", "维多利亚", "卡西米尔"], "power": ["罗德岛", "喀兰贸易"], "topic": ["巨兽"], "status": "计划读", "nec": [33], "ready": false}, {"id": 43, "name": "傀影与猩红孤钻", "cls": "rougelike", "stage": 2, "date": "2022-01-05", "country": ["卡西米尔", "高卢", "维多利亚", "乌萨斯", "卡兹戴尔", "莱塔尼亚"], "power": ["猩红剧团", "罗德岛", "锈锤"], "topic": ["兽主"], "status": "未读", "nec": [21, 23], "ready": false}, {"id": 44, "name": "将进酒", "cls": "sidestory", "stage": 2, "date": "2022-01-25", "country": ["炎"], "power": ["岁", "行动预备组A1", "鲤氏侦探事务所"], "topic": ["巨兽", "新年活动"], "status": "未读", "nec": [26], "ready": false}, {"id": 45, "name": "阴云火花", "cls": "ministory", "stage": 2, "date": "2022-02-15", "country": ["维多利亚"], "power": ["整合运动", "锈锤"], "topic": [], "status": "未读", "nec": [36, 39], "ready": false}, {"id": 46, "name": "吾导先路", "cls": "sidestory", "stage": 2, "date": "2022-03-15", "country": ["拉特兰"], "power": ["萨卡兹"], "topic": [], "status": "未读", "nec": [23, 10], "ready": false}, {"id": 47, "name": "狂弹要塞！罗德大兵集结", "cls": "other", "stage": 2, "date": "2022-04-01", "country": [], "power": ["罗德岛"], "topic": [], "status": "未读", "nec": [4], "ready": true}, {"id": 48, "name": "EP10. 破碎日冕", "cls": "main", "stage": 2, "date": "2022-04-14", "country": ["维多利亚", "卡兹戴尔"], "power": ["使徒", "巴别塔", "罗德岛", "萨卡兹"], "topic": ["源石"], "status": "未读", "nec": [39, 36, 45], "ready": false}, {"id": 49, "name": "愚人号", "cls": "sidestory", "stage": 2, "date": "2022-05-01", "country": ["伊比利亚", "阿戈尔"], "power": ["罗德岛", "深海猎人"], "topic": ["海嗣", "周年活动"], "status": "已读", "nec": [31], "ready": true}, {"id": 50, "name": "A1行动预备组", "cls": "manga", "stage": 2, "date": "2022-05-07", "country": ["玻利瓦尔"], "power": ["行动预备组A1"], "topic": [], "status": "未读", "nec": [4], "ready": true}, {"id": 51, "name": "尘影余音", "cls": "sidestory", "stage": 2, "date": "2022-06-09", "country": ["莱塔尼亚"], "power": [], "topic": [], "status": "未读", "nec": [33, 13], "ready": false}, {"id": 52, "name": "绿野幻梦", "cls": "sidestory", "stage": 2, "date": "2022-07-05", "country": ["哥伦比亚"], "power": ["莱茵生命"], "topic": [], "status": "已读", "nec": [24, 37], "ready": false}, {"id": 53, "name": "未尽篇章", "cls": "ministory", "stage": 2, "date": "2022-07-19", "country": ["维多利亚", "谢拉格", "炎", "卡西米尔", "叙拉古", "汐斯塔", "哥伦比亚"], "power": ["龙门", "喀兰贸易", "罗德岛"], "topic": [], "status": "未读", "nec": [52, 42, 41, 10, 8], "ready": false}, {"id": 54, "name": "理想城：长夏狂欢季", "cls": "sidestory", "stage": 2, "date": "2022-08-11", "country": ["萨尔贡", "乌萨斯"], "power": [], "topic": ["夏日活动"], "status": "未读", "nec": [19], "ready": false}, {"id": 55, "name": "日暮寻路", "cls": "ministory", "stage": 2, "date": "2022-09-08", "country": ["卡西米尔"], "power": [], "topic": [], "status": "未读", "nec": [41], "ready": false}, {"id": 56, "name": "好久不见", "cls": "ministory", "stage": 2, "date": "2022-09-15", "country": ["炎"], "power": ["鲤氏侦探事务所", "龙门"], "topic": ["联动剧情"], "status": "未读", "nec": [10, 48, 44, 18], "ready": false}, {"id": 57, "name": "水月与深蓝之树", "cls": "rougelike", "stage": 2, "date": "2022-09-27", "country": ["伊比利亚", "阿戈尔"], "power": ["罗德岛", "深海猎人"], "topic": ["海嗣", "兽主"], "status": "未读", "nec": [49], "ready": true}, {"id": 58, "name": "EP11. 淬火尘霾", "cls": "main", "stage": 2, "date": "2022-10-11", "country": ["维多利亚", "卡兹戴尔", "塔拉和深池"], "power": ["罗德岛", "巴别塔", "整合运动", "萨卡兹"], "topic": ["源石", "兽主"], "status": "未读", "nec": [48], "ready": false}, {"id": 59, "name": "叙拉古人", "cls": "sidestory", "stage": 2, "date": "2022-11-01", "country": ["叙拉古"], "power": ["企鹅物流"], "topic": ["兽主", "感谢庆典"], "status": "未读", "nec": [10], "ready": false}, {"id": 60, "name": "照我以火", "cls": "sidestory", "stage": 2, "date": "2022-12-15", "country": ["塔拉和深池", "维多利亚"], "power": [], "topic": [], "status": "未读", "nec": [58], "ready": false}, {"id": 61, "name": "鲤氏侦探事务所", "cls": "anime", "stage": 2, "date": "2022-12-23", "country": ["炎"], "power": ["鲤氏侦探事务所"], "topic": [], "status": "未读", "nec": [10, 44], "ready": false}, {"id": 62, "name": "登临意", "cls": "sidestory", "stage": 2, "date": "2023-01-17", "country": ["炎"], "power": ["岁"], "topic": ["新年活动", "巨兽"], "status": "未读", "nec": [44, 38], "ready": false}, {"id": 63, "name": "生息演算：沙中之火", "cls": "RA", "stage": 2, "date": "2023-01-29", "country": ["萨尔贡"], "power": ["罗德岛"], "topic": ["兽主"], "status": "未读", "nec": [29], "ready": false}, {"id": 64, "name": "春分", "cls": "ministory", "stage": 2, "date": "2023-02-14", "country": ["炎"], "power": [], "topic": [], "status": "未读", "nec": [62], "ready": false}, {"id": 65, "name": "落叶逐火", "cls": "sidestory", "stage": 2, "date": "2023-03-07", "country": ["东"], "power": ["罗德岛"], "topic": ["联动剧情"], "status": "未读", "nec": [4], "ready": true}, {"id": 66, "name": "主播U：全能系美少女", "cls": "other", "stage": 2, "date": "2023-04-01", "country": ["炎", "玻利瓦尔"], "power": ["龙门"], "topic": [], "status": "未读", "nec": [38], "ready": false}, {"id": 67, "name": "EP12. 惊霆无声", "cls": "main", "stage": 2, "date": "2023-04-06", "country": ["维多利亚", "卡兹戴尔"], "power": ["巴别塔", "罗德岛", "萨卡兹"], "topic": ["源石", "兽主"], "status": "未读", "nec": [58, 60], "ready": false}, {"id": 68, "name": "孤星", "cls": "sidestory", "stage": 2, "date": "2023-05-01", "country": ["哥伦比亚", "伊比利亚", "莱塔尼亚", "维多利亚", "谢拉格", "萨米和因非冰原"], "power": ["萨卡兹", "莱茵生命", "罗德岛"], "topic": ["源石", "兽主", "周年活动", "海嗣"], "status": "已读", "nec": [52, 58, 46], "ready": false}, {"id": 69, "name": "信使安洁莉娜漫游手记", "cls": "manga", "stage": 2, "date": "2023-05-14", "country": ["叙拉古"], "power": ["罗德岛"], "topic": ["游戏外剧情"], "status": "未读", "nec": [4], "ready": true}, {"id": 70, "name": "空想花庭", "cls": "sidestory", "stage": 3, "date": "2023-06-08", "country": ["拉特兰"], "power": [], "topic": ["海嗣"], "status": "未读", "nec": [46, 57], "ready": false}, {"id": 71, "name": "序言组曲：无拘奏音", "cls": "manga", "stage": 3, "date": "2023-06-21", "country": ["拉特兰", "莱塔尼亚"], "power": [], "topic": ["游戏外剧情"], "status": "未读", "nec": [51, 70], "ready": false}, {"id": 72, "name": "眠于树影之中", "cls": "ministory", "stage": 3, "date": "2023-07-06", "country": ["萨米和因非冰原", "哥伦比亚", "乌萨斯"], "power": ["莱茵生命"], "topic": ["邪魔和星门"], "status": "未读", "nec": [68, 9], "ready": false}, {"id": 73, "name": "探索者的银凇止境", "cls": "rougelike", "stage": 3, "date": "2023-07-13", "country": ["萨米和因非冰原", "萨尔贡", "乌萨斯", "哥伦比亚", "拉特兰"], "power": ["莱茵生命", "罗德岛", "萨卡兹"], "topic": ["邪魔和星门"], "status": "未读", "nec": [72, 49], "ready": false}, {"id": 74, "name": "火山旅梦", "cls": "sidestory", "stage": 3, "date": "2023-08-01", "country": ["汐斯塔"], "power": ["龙门"], "topic": ["兽主"], "status": "未读", "nec": [8, 62, 10, 59], "ready": false}, {"id": 75, "name": "不义之财", "cls": "sidestory", "stage": 3, "date": "2023-09-05", "country": ["哥伦比亚"], "power": ["黑钢国际"], "topic": [], "status": "未读", "nec": [23, 9, 35], "ready": false}, {"id": 76, "name": "纷争演绎", "cls": "other", "stage": 3, "date": "2023-09-27", "country": ["萨尔贡", "卡兹戴尔"], "power": ["萨卡兹", "莱茵生命"], "topic": [], "status": "未读", "nec": [48], "ready": false}, {"id": 77, "name": "EP13. 恶兆湍流", "cls": "main", "stage": 3, "date": "2023-10-08", "country": ["卡兹戴尔", "维多利亚", "塔拉和深池"], "power": ["萨卡兹", "巴别塔", "罗德岛", "使徒", "龙门"], "topic": ["源石"], "status": "未读", "nec": [67], "ready": false}, {"id": 78, "name": "崔林特尔梅之金", "cls": "sidestory", "stage": 3, "date": "2023-11-01", "country": ["拉特兰", "莱塔尼亚", "卡西米尔"], "power": ["罗德岛"], "topic": ["邪魔和星门", "感谢庆典"], "status": "未读", "nec": [70, 71, 73, 41], "ready": false}, {"id": 79, "name": "小刻的画图写话", "cls": "anime", "stage": 3, "date": "2023-12-01", "country": [], "power": ["罗德岛", "莱茵生命"], "topic": ["游戏外剧情"], "status": "未读", "nec": [13], "ready": false}, {"id": 80, "name": "银心湖列车", "cls": "sidestory", "stage": 3, "date": "2023-12-05", "country": ["卡西米尔", "谢拉格", "乌萨斯", "维多利亚", "哥伦比亚"], "power": ["莱茵生命", "罗德岛", "喀兰贸易", "乌萨斯学生自治团"], "topic": ["巨兽"], "status": "未读", "nec": [41, 42, 77, 17], "ready": false}, {"id": 81, "name": "罗德厨房——回甘", "cls": "manga", "stage": 3, "date": "2023-12-08", "country": [], "power": ["罗德岛"], "topic": ["游戏外剧情"], "status": "未读", "nec": [4], "ready": true}, {"id": 82, "name": "去咧嘴谷", "cls": "ministory", "stage": 3, "date": "2024-01-09", "country": ["雷姆必拓"], "power": ["罗德岛"], "topic": ["巨兽"], "status": "未读", "nec": [4], "ready": true}, {"id": 83, "name": "怀黍离", "cls": "sidestory", "stage": 3, "date": "2024-02-01", "country": ["炎"], "power": ["岁"], "topic": ["邪魔和星门", "巨兽", "新年活动"], "status": "未读", "nec": [62, 72], "ready": false}, {"id": 84, "name": "一起吃个饭吧", "cls": "main", "stage": 3, "date": "2024-02-09", "country": [], "power": ["罗德岛", "岁"], "topic": ["巨兽", "游戏外剧情"], "status": "未读", "nec": [83], "ready": false}, {"id": 85, "name": "生息演算：沙洲遗闻", "cls": "RA", "stage": 3, "date": "2024-02-03", "country": ["萨尔贡"], "power": ["罗德岛"], "topic": ["兽主"], "status": "未读", "nec": [19, 63], "ready": false}, {"id": 86, "name": "水晶箭行动", "cls": "sidestory", "stage": 3, "date": "2024-02-16", "country": ["玻利瓦尔", "米诺斯"], "power": ["罗德岛", "彩虹小队"], "topic": ["联动剧情"], "status": "未读", "nec": [27, 38], "ready": false}, {"id": 87, "name": "好得不能再好了！泰拉投资大师课", "cls": "other", "stage": 3, "date": "2024-04-01", "country": [], "power": ["锈锤"], "topic": [], "status": "未读", "nec": [4], "ready": true}, {"id": 88, "name": "巴别塔", "cls": "sidestory", "stage": 3, "date": "2024-04-11", "country": ["卡兹戴尔", "维多利亚", "拉特兰"], "power": ["巴别塔", "罗德岛"], "topic": ["源石", "海嗣", "邪魔和星门"], "status": "计划读", "nec": [77, 68, 73, 46, 82], "ready": false}, {"id": 89, "name": "EP14. 慈悲灯塔", "cls": "main", "stage": 3, "date": "2024-05-01", "country": ["卡兹戴尔", "塔拉和深池", "维多利亚"], "power": ["使徒", "巴别塔", "整合运动", "罗德岛", "萨卡兹", "龙门"], "topic": ["兽主", "周年活动", "源石"], "status": "计划读", "nec": [88, 41], "ready": false}, {"id": 90, "name": "生路", "cls": "sidestory", "stage": 4, "date": "2024-06-09", "country": ["阿戈尔"], "power": ["深海猎人", "罗德岛"], "topic": ["海嗣", "源石"], "status": "已读", "nec": [57, 89], "ready": false}, {"id": 91, "name": "熔炉“还魂”记", "cls": "ministory", "stage": 4, "date": "2024-07-09", "country": ["卡兹戴尔"], "power": ["萨卡兹"], "topic": ["源石"], "status": "未读", "nec": [89], "ready": false}, {"id": 92, "name": "塞茜莉亚的安魂寻旅", "cls": "sidestory", "stage": 4, "date": "2024-06-16", "country": ["卡兹戴尔", "拉特兰"], "power": [], "topic": [], "status": "未读", "nec": [46], "ready": false}, {"id": 93, "name": "萨卡兹的无终奇语", "cls": "rougelike", "stage": 4, "date": "2024-07-16", "country": ["卡兹戴尔", "塔拉和深池", "拉特兰", "炎"], "power": ["巴别塔", "罗德岛"], "topic": ["源石"], "status": "未读", "nec": [91, 68, 46], "ready": false}, {"id": 94, "name": "太阳甩在身后", "cls": "sidestory", "stage": 4, "date": "2024-08-01", "country": ["萨尔贡", "米诺斯"], "power": [], "topic": ["兽主", "夏日活动"], "status": "未读", "nec": [85], "ready": false}, {"id": 95, "name": "泰拉饭", "cls": "sidestory", "stage": 4, "date": "2024-09-02", "country": ["伊比利亚", "萨米和因非冰原", "雷姆必拓", "炎", "萨尔贡", "哥伦比亚"], "power": ["岁", "整合运动", "罗德岛"], "topic": ["兽主", "巨兽", "海嗣", "源石", "邪魔和星门", "联动剧情"], "status": "未读", "nec": [26, 6, 31, 73, 13], "ready": false}, {"id": 96, "name": "追迹日落以西", "cls": "sidestory", "stage": 4, "date": "2024-10-09", "country": ["维多利亚"], "power": ["罗德岛", "萨卡兹"], "topic": ["兽主"], "status": "未读", "nec": [89], "ready": false}, {"id": 97, "name": "序言组曲：旧创", "cls": "sidestory", "stage": 4, "date": "2024-10-28", "country": ["叙拉古"], "power": ["企鹅物流"], "topic": ["兽主"], "status": "未读", "nec": [59], "ready": false}, {"id": 98, "name": "揭幕者们", "cls": "sidestory", "stage": 4, "date": "2024-11-01", "country": ["叙拉古"], "power": ["企鹅物流"], "topic": ["兽主", "感谢庆典"], "status": "未读", "nec": [59, 18], "ready": false}, {"id": 99, "name": "卫戍协议", "cls": "other", "stage": 4, "date": "2024-11-15", "country": ["哥伦比亚"], "power": ["罗德岛"], "topic": [], "status": "未读", "nec": [4], "ready": true}, {"id": 100, "name": "出苍白海", "cls": "sidestory", "stage": 4, "date": "2024-12-05", "country": ["伊比利亚"], "power": [], "topic": ["源石"], "status": "未读", "nec": [49], "ready": true}, {"id": 101, "name": "相见欢", "cls": "sidestory", "stage": 4, "date": "2025-01-22", "country": ["维多利亚", "炎"], "power": ["岁", "罗德岛", "龙门"], "topic": ["巨兽", "新年活动"], "status": "未读", "nec": [83], "ready": false}, {"id": 102, "name": "暮岁闲谈：来拍电影吗", "cls": "manga", "stage": 4, "date": "2025-01-22", "country": ["炎"], "power": ["罗德岛", "岁"], "topic": ["巨兽", "游戏外剧情"], "status": "未读", "nec": [101], "ready": false}, {"id": 103, "name": "我们明日见", "cls": "ministory", "stage": 4, "date": "2025-02-14", "country": ["卡兹戴尔", "维多利亚", "塔拉和深池", "乌萨斯", "哥伦比亚"], "power": ["巴别塔", "整合运动", "罗德岛", "萨卡兹"], "topic": ["兽主", "源石"], "status": "未读", "nec": [91, 96], "ready": false}, {"id": 104, "name": "挽歌燃烧殆尽", "cls": "sidestory", "stage": 4, "date": "2025-03-07", "country": ["塔拉和深池"], "power": ["罗德岛"], "topic": [], "status": "未读", "nec": [103], "ready": false}, {"id": 105, "name": "ARKnoNIGHTS", "cls": "other", "stage": 4, "date": "2025-04-01", "country": ["乌萨斯", "伊比利亚", "维多利亚"], "power": ["罗德岛", "整合运动"], "topic": ["海嗣", "源石"], "status": "未读", "nec": [48, 58], "ready": false}, {"id": 106, "name": "EP15. 离解复合", "cls": "main", "stage": 4, "date": "2025-04-07", "country": ["雷姆必拓", "伊比利亚", "乌萨斯", "维多利亚", "叙拉古", "阿戈尔"], "power": ["罗德岛"], "topic": ["海嗣", "源石"], "status": "未读", "nec": [82, 103], "ready": false}, {"id": 107, "name": "众生行记", "cls": "sidestory", "stage": 4, "date": "2025-05-01", "country": ["拉特兰"], "power": ["罗德岛"], "topic": ["周年活动", "海嗣", "源石", "邪魔和星门"], "status": "未读", "nec": [78, 106, 93], "ready": false}, {"id": 108, "name": "U探泰拉", "cls": "anime", "stage": 4, "date": "2025-05-16", "country": ["炎", "哥伦比亚", "萨米和因非冰原", "谢拉格", "叙拉古", "萨尔贡", "玻利瓦尔", "卡西米尔", "莱塔尼亚", "阿戈尔"], "power": ["企鹅物流", "岁", "深海猎人", "莱茵生命", "锈锤", "鲤氏侦探事务所", "龙门"], "topic": ["兽主", "巨兽", "邪魔和星门", "游戏外剧情"], "status": "未读", "nec": [78, 80, 59, 68, 101], "ready": false}, {"id": 109, "name": "序言组曲：猩红血钻", "cls": "manga", "stage": 4, "date": "2025-05-28", "country": ["维多利亚"], "power": ["猩红剧团"], "topic": ["兽主", "游戏外剧情"], "status": "未读", "nec": [43], "ready": false}, {"id": 110, "name": "红丝绒", "cls": "sidestory", "stage": 4, "date": "2025-06-05", "country": ["哥伦比亚"], "power": ["猩红剧团", "罗德岛"], "topic": ["兽主"], "status": "未读", "nec": [43], "ready": false}, {"id": 111, "name": "镜中集", "cls": "ministory", "stage": 4, "date": "2025-07-08", "country": ["炎"], "power": ["岁"], "topic": ["巨兽"], "status": "未读", "nec": [101], "ready": false}, {"id": 112, "name": "岁的界园志异", "cls": "rougelike", "stage": 4, "date": "2025-07-15", "country": ["炎"], "power": ["岁", "罗德岛", "龙门"], "topic": ["巨兽"], "status": "未读", "nec": [111], "ready": false}, {"id": 113, "name": "暮岁闲谈：这是平凡人生", "cls": "manga", "stage": 4, "date": "2025-07-20", "country": ["炎"], "power": ["岁", "龙门"], "topic": ["巨兽"], "status": "未读", "nec": [101], "ready": false}, {"id": 114, "name": "墟", "cls": "sidestory", "stage": 4, "date": "2025-08-02", "country": ["东"], "power": ["龙门"], "topic": ["兽主", "夏日活动"], "status": "未读", "nec": [98], "ready": false}, {"id": 115, "name": "无忧梦呓", "cls": "sidestory", "stage": 4, "date": "2025-09-04", "country": ["叙拉古", "汐斯塔", "炎", "维多利亚", "雷姆必拓"], "power": ["梦城堡", "AveMujica", "龙门"], "topic": ["联动剧情"], "status": "未读", "nec": [59, 82, 74], "ready": false}, {"id": 116, "name": "精英干员：启程", "cls": "manga", "stage": 4, "date": "2025-09-29", "country": ["卡兹戴尔", "雷姆必拓"], "power": ["巴别塔", "萨卡兹"], "topic": [], "status": "未读", "nec": [106], "ready": false}, {"id": 117, "name": "EP16. 反常光谱", "cls": "main", "stage": 4, "date": "2025-10-09", "country": ["乌萨斯", "叙拉古"], "power": ["乌萨斯学生自治团", "整合运动", "罗德岛"], "topic": ["源石", "邪魔和星门"], "status": "未读", "nec": [107, 73, 93], "ready": false}, {"id": 118, "name": "序言组曲：利锏银锋", "cls": "manga", "stage": 4, "date": "2025-10-16", "country": ["卡西米尔", "谢拉格"], "power": ["喀兰贸易"], "topic": ["游戏外剧情", "巨兽"], "status": "未读", "nec": [80], "ready": false}, {"id": 119, "name": "雪山降临1101", "cls": "sidestory", "stage": 4, "date": "2025-11-01", "country": ["维多利亚", "谢拉格"], "power": ["喀兰贸易"], "topic": ["巨兽", "感谢庆典", "源石"], "status": "未读", "nec": [80, 117], "ready": false}, {"id": 120, "name": "未许之地", "cls": "sidestory", "stage": 4, "date": "2025-12-05", "country": ["卡兹戴尔", "哥伦比亚"], "power": ["莱茵生命", "萨卡兹"], "topic": [], "status": "已读", "nec": [68, 93], "ready": false}, {"id": 121, "name": "雅赛努斯复仇记", "cls": "sidestory", "stage": 4, "date": "2026-01-09", "country": ["米诺斯", "萨尔贡"], "power": [], "topic": ["兽主"], "status": "未读", "nec": [94], "ready": false}, {"id": 122, "name": "辞岁行", "cls": "sidestory", "stage": 4, "date": "2026-02-10", "country": ["炎"], "power": ["岁", "龙门"], "topic": ["巨兽", "新年活动", "源石"], "status": "未读", "nec": [117, 112], "ready": false}, {"id": 123, "name": "十字路口", "cls": "ministory", "stage": 4, "date": "2026-03-10", "country": ["叙拉古", "莱塔尼亚"], "power": [], "topic": ["兽主"], "status": "未读", "nec": [98], "ready": false}, {"id": 124, "name": "人们，我们", "cls": "sidestory", "stage": 4, "date": "2026-04-07", "country": ["乌萨斯"], "power": ["乌萨斯学生自治团", "罗德岛"], "topic": [], "status": "未读", "nec": [117, 17], "ready": false}, {"id": 125, "name": "EP17. 相变临界", "cls": "main", "stage": 4, "date": "2026-05-01", "country": ["乌萨斯", "伊比利亚", "卡西米尔", "拉特兰", "谢拉格", "炎", "维多利亚"], "power": ["罗德岛", "整合运动", "喀兰贸易", "萨卡兹", "巴别塔", "深海猎人"], "topic": ["周年活动", "源石"], "status": "未读", "nec": [117, 124], "ready": false}, {"id": 126, "name": "生息演算：重启锚点", "cls": "RA", "stage": 4, "date": "2026-05-15", "country": ["维多利亚"], "power": ["罗德岛", "乌萨斯学生自治团", "整合运动"], "topic": [], "status": "未读", "nec": [125], "ready": false}, {"id": 127, "name": "泡影苍霆", "cls": "sidestory", "stage": 4, "date": "2026-06-01", "country": ["东"], "power": ["罗德岛"], "topic": ["联动剧情"], "status": "未读", "nec": [65], "ready": false}, {"id": 128, "name": "循途漫录：大将军，出击！", "cls": "manga", "stage": 4, "date": "2026-06-20", "country": ["莱塔尼亚"], "power": ["罗德岛"], "topic": [], "status": "未读", "nec": [54], "ready": false}, {"id": 129, "name": "丛林症结", "cls": "ministory", "stage": 4, "date": "2026-07-10", "country": ["玻利瓦尔"], "power": ["罗德岛"], "topic": ["兽主", "源石"], "status": "未读", "nec": [50, 86], "ready": false}, {"id": 130, "name": "沉沦者的黑流树海", "cls": "rougelike", "stage": 4, "date": "2026-07-17", "country": ["玻利瓦尔"], "power": ["罗德岛"], "topic": ["兽主", "源石"], "status": "未读", "nec": [128], "ready": false}, {"id": 131, "name": "直到大地变成一颗酸橙", "cls": "sidestory", "stage": 4, "date": "2026-08-01", "country": ["雷姆必拓"], "power": [], "topic": ["夏日活动", "源石"], "status": "未读", "nec": [74, 125, 69], "ready": false}, {"id": 132, "name": "奇象巡展", "cls": "other", "stage": 4, "date": "2026-08-08", "country": ["汐斯塔"], "power": [], "topic": [], "status": "未读", "nec": [8], "ready": false}, {"id": 133, "name": "月行水上", "cls": "sidestory", "stage": 4, "date": "2026-09-04", "country": ["拉特兰"], "power": ["罗德岛", "喀兰贸易"], "topic": ["联动剧情"], "status": "未读", "nec": [107], "ready": false}, {"id": 134, "name": "昨日海", "cls": "sidestory", "stage": 4, "date": "2026-10-09", "country": ["阿戈尔", "伊比利亚"], "power": ["深海猎人"], "topic": ["海嗣"], "status": "未读", "nec": [100, 90], "ready": false}];
+
+const DEFAULT_RECORDS = Object.fromEntries(DEFAULT_DATA.map(d => [String(d.id), d.status]));
+const VALID_STATUSES = new Set(['未读', '计划读', '正在读', '已读']);
+
+// ---------- Storage & IndexedDB Handle Persistence ----------
+const STORAGE_KEYS = {
+  RECORDS: 'arkplots_graph.records.v1',
+  RECORDS_META: 'arkplots_graph.records_meta.v1',
+  PLOTLINE: 'arkplots_graph.plotline.v1',
+  UI_STATE: 'arkplots_graph.ui_state.endfield.v1',
+};
+const IDB_NAME = 'ArkPlotsGraphDB';
+const IDB_STORE = 'file_handles';
+
+function openHandleDB() {
+  return new Promise(resolve => {
+    if (typeof indexedDB === 'undefined') return resolve(null);
+    try {
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+async function saveFileHandle(key, handle) {
+  const db = await openHandleDB();
+  if (!db) return false;
+  return new Promise(resolve => {
+    try {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(handle, key);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    } catch {
+      resolve(false);
+    }
+  });
+}
+
+async function loadFileHandle(key) {
+  const db = await openHandleDB();
+  if (!db) return null;
+  return new Promise(resolve => {
+    try {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+async function clearFileHandles() {
+  const db = await openHandleDB();
+  if (!db) return;
+  return new Promise(resolve => {
+    try {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    } catch {
+      resolve();
+    }
+  });
+}
+
+function safeGetLS(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function safeSetLS(key, val) {
+  try {
+    localStorage.setItem(key, JSON.stringify(val));
+  } catch {}
+}
+
+function safeRemoveLS(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {}
+}
+
+// ---------- Pure JS Data Normalization & Prerequisite Engine ----------
+function normalizePlotline(rawInput) {
+  const list = Array.isArray(rawInput)
+    ? rawInput
+    : (rawInput && Array.isArray(rawInput.data) ? rawInput.data : null);
+  if (!list || !list.length) {
+    throw new Error('無效的 Plotline 資料結構（需包含 data 陣列）');
+  }
+  const idSet = new Set(list.map(p => Number(p.id)).filter(n => Number.isFinite(n)));
+  const anomalies = [];
+  const plots = list.map(src => {
+    const pid = Number(src.id);
+    let nec = [];
+    if (Array.isArray(src.nec)) {
+      const seen = new Set();
+      for (const tid of src.nec) {
+        const n = Number(tid);
+        if (idSet.has(n) && n !== pid && !seen.has(n)) {
+          seen.add(n);
+          nec.push(n);
+        }
+      }
+    } else if (Array.isArray(src.necessary_plot)) {
+      const seen = new Set();
+      for (const e of src.necessary_plot) {
+        if (e && typeof e === 'object' && 'id' in e && idSet.has(Number(e.id))) {
+          const tid = Number(e.id);
+          if (tid === pid) {
+            anomalies.push(`${pid} ${src.name}: 忽略指向自身的前置`);
+          } else if (seen.has(tid)) {
+            anomalies.push(`${pid} ${src.name}: 忽略重複前置 #${tid}`);
+          } else {
+            seen.add(tid);
+            nec.push(tid);
+          }
+        } else if (e && typeof e === 'object' && 'url' in e) {
+          anomalies.push(`${pid} ${src.name}: 忽略誤置於前置的影片連結 (${e.url})`);
+        }
+      }
+    }
+    return {
+      id: pid,
+      name: String(src.name || ''),
+      cls: String(src.cls || src.class || 'other'),
+      stage: Number(src.stage ?? src.plot_stage ?? 1),
+      date: String(src.date || '2019-05-01'),
+      country: Array.isArray(src.country) ? src.country.map(String) : [],
+      power: Array.isArray(src.power) ? src.power.map(String) : (Array.isArray(src.related_power) ? src.related_power.map(String) : []),
+      topic: Array.isArray(src.topic) ? src.topic.map(String) : (Array.isArray(src.related_plot) ? src.related_plot.map(String) : []),
+      status: VALID_STATUSES.has(src.status) ? src.status : '未读',
+      nec,
+      ready: true,
+    };
+  });
+  return { plots, anomalies };
+}
+
+function normalizeRecords(rawObj) {
+  if (!rawObj || typeof rawObj !== 'object' || Array.isArray(rawObj)) {
+    throw new Error('Read_record.json 格式錯誤：必須為鍵值對 JSON 物件');
+  }
+  if ('data' in rawObj && Array.isArray(rawObj.data)) {
+    throw new Error('偵測到 Plotline.json 格式，請使用「載入 Plotline.json」或選擇 Read_record.json');
+  }
+  const out = {};
+  let validCount = 0;
+  for (const [k, v] of Object.entries(rawObj)) {
+    if (/^\d+$/.test(String(k).trim())) {
+      const st = String(v || '').trim();
+      out[String(Number(k))] = VALID_STATUSES.has(st) ? st : '未读';
+      validCount++;
+    }
+  }
+  if (validCount === 0 && Object.keys(rawObj).length > 0) {
+    throw new Error('JSON 中找不到任何有效的劇情 ID 閱讀紀錄');
+  }
+  return out;
+}
+
+// ---------- Mutable Graph State ----------
+let DATA = DEFAULT_DATA.map(d => ({ ...d, country: [...d.country], power: [...d.power], topic: [...d.topic], nec: [...d.nec] }));
+let currentRecords = { ...DEFAULT_RECORDS };
+let byId = new Map();
+let EDGES = [];
+let deg = new Map();
+let inDeg = new Map();
+let topCountries = [];
+
+const PERIPH = new Set(['manga', 'anime', 'other']);
+const CLS_ZH = { main: '主线', sidestory: '别传', ministory: '故事集', rougelike: '集成战略', RA: '生息演算', manga: '漫画', anime: '动画', other: '其他' };
+const CPAL = ['#ffe600', '#00f0ff', '#ff5500', '#22c55e', '#a855f7', '#38bdf8', '#f43f5e'];
+const unread = d => d.status !== '已读';
+
+function recomputeGraphState() {
+  byId = new Map(DATA.map(d => [d.id, d]));
+  for (const d of DATA) {
+    const st = currentRecords[String(d.id)];
+    d.status = VALID_STATUSES.has(st) ? st : '未读';
+  }
+  for (const d of DATA) {
+    d.ready = d.nec.every(prereqId => {
+      const p = byId.get(prereqId);
+      return !p || p.status === '已读';
+    });
+  }
+  EDGES = DATA.flatMap(d => d.nec.filter(t => byId.has(t)).map(t => ({ s: d.id, t })));
+  deg = new Map(DATA.map(d => [d.id, 0]));
+  EDGES.forEach(e => { deg.set(e.s, (deg.get(e.s) || 0) + 1); deg.set(e.t, (deg.get(e.t) || 0) + 1); });
+  inDeg = new Map(DATA.map(d => [d.id, 0]));
+  EDGES.forEach(e => inDeg.set(e.t, (inDeg.get(e.t) || 0) + 1));
+
+  const c = {};
+  DATA.forEach(d => d.country.forEach(x => c[x] = (c[x] || 0) + 1));
+  topCountries = Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 7).map(x => x[0]);
+}
+
+recomputeGraphState();
+
+function getPresets() {
+  return [
+    { key: 'endfield_aic', title: '終末地工業（Talos-II 拓荒光譜）', tag: 'ENDFIELD 主題', desc: '工業綠＝已歸檔、訊號黃＝計劃共鳴、武陵青＝前置就緒、警示橘＝鎖定中',
+      groups: [
+        { label: 'ARCHIVED（已讀歸檔）', query: '[status:已读]', color: '#22c55e', m: d => d.status === '已读' },
+        { label: 'ACTIVE SCAN（正在讀）', query: '[status:正在读]', color: '#ffe600', m: d => d.status === '正在读' },
+        { label: 'AIC READY（計劃讀・可出擊）', query: '[status:计划读] [prereq_ready:true]', color: '#00f0ff', m: d => d.status === '计划读' && d.ready },
+        { label: 'HAZARD LOCKED（計劃讀・缺前置）', query: '[status:计划读] [prereq_ready:false]', color: '#ff5500', m: d => d.status === '计划读' && !d.ready },
+        { label: 'PIONEER UNLOCKED（未讀・前置已齊）', query: '[prereq_ready:true]', color: '#eab308', m: d => d.ready },
+      ] },
+    { key: 'status', title: '閱讀狀態', tag: '經典', desc: '和 Canvas 同一套配色：綠＝已讀、橘＝正在讀、黃＝計劃讀',
+      groups: [
+        { label: '已读', query: '[status:已读]', color: '#22c55e', m: d => d.status === '已读' },
+        { label: '正在读', query: '[status:正在读]', color: '#ff5500', m: d => d.status === '正在读' },
+        { label: '计划读', query: '[status:计划读]', color: '#ffe600', m: d => d.status === '计划读' },
+      ] },
+    { key: 'action', title: '行動導向：下一步讀什麼', tag: '拓荒推薦', desc: '把「可以開讀」點亮，已讀的退到背景',
+      groups: [
+        { label: '已读（退到背景）', query: '[status:已读]', color: '#525866', m: d => d.status === '已读' },
+        { label: '计划读・但缺前置', query: '[status:计划读] [prereq_ready:false]', color: '#ff5500', m: d => d.status === '计划读' && !d.ready },
+        { label: '前置齊全・可以開讀', query: '[prereq_ready:true]', color: '#00f0ff', m: d => d.ready },
+      ] },
+    { key: 'class', title: '作品類型', desc: '看主線骨架與周邊作品的分布',
+      groups: Object.entries({ main: '#ffe600', sidestory: '#00f0ff', ministory: '#22c55e', rougelike: '#a855f7', RA: '#ff5500', manga: '#38bdf8', anime: '#f43f5e', other: '#94a3b8' })
+        .map(([k, c]) => ({ label: CLS_ZH[k], query: `tag:#类型/${k}`, color: c, m: d => d.cls === k })) },
+    { key: 'stage', title: '敘事階段 S1–S4', desc: '時間層次：看哪些舊作被新作反覆引用',
+      groups: [['1', '#00f0ff'], ['2', '#22c55e'], ['3', '#ffe600'], ['4', '#ff5500']]
+        .map(([s, c]) => ({ label: 'S' + s, query: `tag:#阶段/S${s}`, color: c, m: d => String(d.stage) === s })) },
+    { key: 'country', title: '地區（前 7 名）', desc: '多國作品取第一個符合的群組，所以順序很重要',
+      groups: topCountries.map((n, i) => ({ label: n, query: `tag:#国家/${n}`, color: CPAL[i], m: d => d.country.includes(n) })) },
+  ];
+}
+
+// ---------- emoji schemes ----------
+const EMO = {
+  none: { title: '不加 emoji', desc: '最乾淨，靠終末地色塊辨識', f: () => '' },
+  cls: { title: '依類型 (工業模組分類)', desc: '穩定、不會變動（推薦）', f: d => ({ main: '📕', sidestory: '📘', ministory: '📗', rougelike: '🎲', RA: '🏕️', manga: '🖼️', anime: '📺', other: '✨' })[d.cls] || '' },
+  stage: { title: '依階段 (STAGE 1–4)', desc: '階段劃分固定，同樣穩定', f: d => ['', '1️⃣', '2️⃣', '3️⃣', '4️⃣'][d.stage] || '' },
+  status: { title: '依閱讀狀態（反例）', desc: '看起來很直覺，其實會弄斷連結', bad: true, f: d => ({ '已读': '✅', '正在读': '📖', '计划读': '📌' })[d.status] || '' },
+};
+
+const VALID_PRESETS = ['endfield_aic', 'status', 'action', 'class', 'stage', 'country'];
+const savedUI = safeGetLS(STORAGE_KEYS.UI_STATE) || {};
+const S = {
+  preset: savedUI.preset && VALID_PRESETS.includes(savedUI.preset) ? savedUI.preset : 'endfield_aic',
+  emo: savedUI.emo && EMO[savedUI.emo] ? savedUI.emo : 'cls',
+  pos: savedUI.pos === 'suffix' ? 'suffix' : 'prefix',
+  arrows: typeof savedUI.arrows === 'boolean' ? savedUI.arrows : true,
+  hidePeriph: typeof savedUI.hidePeriph === 'boolean' ? savedUI.hidePeriph : false,
+  fade: typeof savedUI.fade === 'number' ? savedUI.fade : 11,
+  autoWatch: typeof savedUI.autoWatch === 'boolean' ? savedUI.autoWatch : false,
+  light: typeof savedUI.light === 'boolean' ? savedUI.light : false,
+  overlay: typeof savedUI.overlay === 'boolean' ? savedUI.overlay : true,
+  q: '',
+  // Default to #68 孤星 so the right-side Endfield AIC Dossier with Cover + Solid Prereqs + Dashed Next-Layer is immediately showcased!
+  sel: 68,
+  hover: null,
+};
+
+function persistUIState() {
+  safeSetLS(STORAGE_KEYS.UI_STATE, {
+    preset: S.preset,
+    emo: S.emo,
+    pos: S.pos,
+    arrows: S.arrows,
+    hidePeriph: S.hidePeriph,
+    fade: S.fade,
+    autoWatch: S.autoWatch,
+    light: S.light,
+    overlay: S.overlay,
+  });
+}
+
+if (S.light) document.documentElement.classList.add('light');
+if (!S.overlay) document.body.classList.add('overlay-off');
+
+const pad = n => String(n).padStart(3, '0');
+const stem = d => { const e = EMO[S.emo].f(d); return !e ? `${pad(d.id)} ${d.name}` : S.pos === 'prefix' ? `${pad(d.id)} ${e} ${d.name}` : `${pad(d.id)} ${d.name} ${e}`; };
+const colorOf = d => {
+  const presets = getPresets();
+  const active = presets.find(p => p.key === S.preset) || presets[0];
+  for (const g of active.groups) if (g.m(d)) return g.color;
+  return null;
+};
+
+// ---------- UI build ----------
+const $ = id => document.getElementById(id);
+
+function showSyncMessage(msg, isError = false) {
+  const el = $('syncMsg');
+  el.classList.remove('hidden');
+  el.style.borderColor = isError ? 'var(--hazard-orange)' : 'var(--border)';
+  el.style.color = isError ? 'var(--hazard-orange)' : 'var(--foreground)';
+  el.textContent = msg;
+}
+
+function updateSourcePanel(meta = null) {
+  const counts = { '已读': 0, '正在读': 0, '计划读': 0, '未读': 0 };
+  DATA.forEach(d => { counts[d.status] = (counts[d.status] || 0) + 1; });
+  $('recordStats').textContent = `已讀 ${counts['已读']} · 正在讀 ${counts['正在读']} · 計劃讀 ${counts['计划读']} · 未讀 ${counts['未读']}`;
+
+  const total = Math.max(1, DATA.length);
+  const readCnt = counts['已读'] || 0;
+  const pct = Math.round((readCnt / total) * 100);
+  const readyUnreadCnt = DATA.filter(d => unread(d) && d.ready).length;
+  $('aicLvLabel').textContent = `ENDMINISTRATOR // LV.${String(Math.max(1, readCnt)).padStart(2, '0')}`;
+  $('aicLoadText').textContent = `AIC SYNC ${String(readCnt).padStart(3, '0')} / ${total} (${pct}%)`;
+  $('aicReadyText').textContent = `READY NODES: ${readyUnreadCnt}`;
+  $('aicBarFill').style.width = `${Math.max(4, pct)}%`;
+
+  const m = meta || safeGetLS(STORAGE_KEYS.RECORDS_META);
+  if (m && m.fileName) {
+    $('recordFileName').textContent = m.fileName;
+    $('sourceBadge').textContent = m.sourceType === 'handle' ? '已綁定檔案' : '快取記憶';
+  } else {
+    $('recordFileName').textContent = 'obsidian/user_data/Read_record.json (預設)';
+    $('sourceBadge').textContent = '內建快照';
+  }
+}
+
+function buildPresets() {
+  const presets = getPresets();
+  $('presets').innerHTML = presets.map(p => {
+    const active = p.key === S.preset;
+    return `
+    <div class="opt" data-k="${p.key}" data-on="${active ? 1 : 0}">
+      <div class="flex items-center justify-between">
+        <span class="text-sm font-semibold">${active ? '<span class="endfield-cursor">AIC</span>' : ''}${p.title}</span>
+        ${p.tag ? `<span class="endfield-tag" style="color:var(--primary)">${p.tag}</span>` : ''}
+      </div>
+      <div class="text-xs text-[var(--muted-foreground)] mt-0.5">${p.desc}</div>
+      <div class="flex flex-wrap gap-1.5 mt-2">${p.groups.map(g => `<span class="sw" style="background:${g.color}" title="${g.label}"></span>`).join('')}</div>
+    </div>`;
+  }).join('');
+  $('presets').querySelectorAll('.opt').forEach(el => el.onclick = () => { S.preset = el.dataset.k; persistUIState(); buildPresets(); refresh(); });
+}
+
+function buildEmojis() {
+  const sample = [byId.get(4) || DATA[0], byId.get(68) || DATA[0], byId.get(20) || DATA[0], byId.get(50) || DATA[0]].filter(Boolean);
+  $('emojis').innerHTML = Object.entries(EMO).map(([k, e]) => {
+    const active = k === S.emo;
+    return `
+    <div class="opt" data-k="${k}" data-on="${active ? 1 : 0}" ${e.bad ? 'style="border-style:dashed"' : ''}>
+      <div class="flex items-center justify-between"><span class="text-sm font-semibold">${active ? '<span class="endfield-cursor">AIC</span>' : ''}${e.title}</span><span class="text-base">${sample.map(e.f).join(' ') || '—'}</span></div>
+      <div class="text-xs text-[var(--muted-foreground)] mt-0.5">${e.desc}</div>
+    </div>`;
+  }).join('');
+  $('emojis').querySelectorAll('.opt').forEach(el => el.onclick = () => { S.emo = el.dataset.k; persistUIState(); buildEmojis(); refresh(); });
+}
+
+document.querySelectorAll('[data-pos]').forEach(b => {
+  b.dataset.on = b.dataset.pos === S.pos ? 1 : 0;
+  b.onclick = () => {
+    S.pos = b.dataset.pos;
+    persistUIState();
+    document.querySelectorAll('[data-pos]').forEach(x => x.dataset.on = x === b ? 1 : 0);
+    refresh();
+  };
+});
+
+$('arrows').checked = S.arrows;
+$('hidePeriph').checked = S.hidePeriph;
+$('fade').value = S.fade;
+$('autoWatch').checked = S.autoWatch;
+$('blueprintOverlayBtn').dataset.on = S.overlay ? 1 : 0;
+$('blueprintOverlayBtn').textContent = S.overlay ? '📐 工程藍圖濾鏡: ON' : '📐 工程藍圖濾鏡: OFF';
+
+$('arrows').onchange = e => { S.arrows = e.target.checked; persistUIState(); renderSide(); draw(); };
+$('hidePeriph').onchange = e => { S.hidePeriph = e.target.checked; persistUIState(); heat(0.5); };
+$('fade').oninput = e => { S.fade = +e.target.value; persistUIState(); draw(); };
+$('q').oninput = e => { S.q = e.target.value.trim(); draw(); };
+$('blueprintOverlayBtn').onclick = () => {
+  S.overlay = !S.overlay;
+  document.body.classList.toggle('overlay-off', !S.overlay);
+  $('blueprintOverlayBtn').dataset.on = S.overlay ? 1 : 0;
+  $('blueprintOverlayBtn').textContent = S.overlay ? '📐 工程藍圖濾鏡: ON' : '📐 工程藍圖濾鏡: OFF';
+  persistUIState();
+};
+$('themeBtn').onclick = () => {
+  S.light = !document.documentElement.classList.contains('light');
+  document.documentElement.classList.toggle('light', S.light);
+  persistUIState();
+  draw();
+};
+
+function refresh() {
+  updateSourcePanel();
+  renderSide();
+  updateSelectedPanel();
+  draw();
+}
+
+function renderSide() {
+  const presets = getPresets();
+  const p = presets.find(x => x.key === S.preset) || presets[0];
+  const vis = DATA.filter(visible);
+  const counts = p.groups.map(() => 0); let other = 0;
+  vis.forEach(d => { const i = p.groups.findIndex(g => g.m(d)); i < 0 ? other++ : counts[i]++; });
+  $('legend').innerHTML = `<div class="font-tech text-[10px] font-semibold mb-1 flex items-center justify-between gap-2" style="color:var(--primary)"><span>TALOS-II TELEMETRY LEGEND</span><span class="color-bars"><span></span><span></span><span></span><span></span></span></div>` +
+    p.groups.map((g, i) => `<div class="flex items-center justify-between gap-3"><span class="flex items-center gap-2"><span class="sw" style="background:${g.color}"></span>${g.label}</span><span class="font-mono text-[var(--primary)]">${counts[i]}</span></div>`).join('')
+    + `<div class="flex items-center justify-between gap-3"><span class="flex items-center gap-2"><span class="sw" style="background:${defaultColor()}"></span>未探明區段／其他</span><span class="font-mono text-[var(--muted-foreground)]">${other}</span></div>`;
+
+  // insights
+  const readyUnread = DATA.filter(d => unread(d) && d.ready);
+  const planBlocked = DATA.filter(d => d.status === '计划读' && !d.ready);
+  const hub = [...inDeg.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([id, n]) => `${byId.get(id)?.name || id}（${n}）`);
+  const read = DATA.filter(d => d.status === '已读').length;
+  const tips = {
+    endfield_aic: [
+      `塔衛二拓荒進度：已歸檔 <b>${read}</b> / ${DATA.length} 部劇情；共有 <b>${readyUnread.length}</b> 個中繼節點前置已齊全可立即部署！`,
+      `計劃共鳴但尚缺前置的警示橘節點共 <b>${planBlocked.length}</b> 部（例：${planBlocked.slice(0, 3).map(d => d.name).join('、') || '無'}）。`,
+      `點擊藍圖上任一工業中繼節點，武陵青實線代表「必讀前置鏈」，訊號黃虛線代表「下一層後續劇情」，右側【終末地工程檔案夾】將同步顯示活動封面！`,
+    ],
+    status: [`已讀 <b>${read}</b> / ${DATA.length}，大多是早期主線。`, `黃色（計劃讀）旁邊如果還是灰色節點，代表前置還沒讀。點一下黃色節點就能看到它的前置鏈。`],
+    action: [`<b>${readyUnread.length}</b> 部「前置齊全、可以直接開讀」，是武陵青色的節點。`, `<b>${planBlocked.length}</b> 部計劃讀還缺前置（橘紅色）：${planBlocked.length ? planBlocked.slice(0, 4).map(d => d.name).join('、') + (planBlocked.length > 4 ? '…' : '') : '無'}`, `這張圖等於一份隨進度變動的「下一步」清單，每次同步 Read_record.json 都會即時更新。`],
+    class: [`被引用最多的前置中樞：${hub.join('、')}。`, `勾選「隱藏支線周邊」，可以只看主線、別傳、故事集構成的劇情骨架。`],
+    stage: [`如果 S1 的節點被許多 S3、S4 的箭頭指到，代表早期作品是後期劇情的基礎。`, `S4 有 ${DATA.filter(d => d.stage === 4).length} 部，是目前規模最大的階段。`],
+    country: [`前 7 名：${topCountries.join('、')}。`, `跨國作品只會顯示第一個符合的顏色。想讓某個地區優先顯示，就把它的群組往上移。`],
+  };
+  $('insight').innerHTML = (tips[S.preset] || tips.endfield_aic).map(t => `<p>▸ ${t}</p>`).join('');
+
+  // names
+  const ex = [byId.get(1) || DATA[0], byId.get(68) || DATA[0], byId.get(20) || DATA[0]].filter(Boolean);
+  $('names').innerHTML = ex.map(d => `
+    <div class="endfield-subbox p-2">
+      <div><span class="text-[var(--muted-foreground)]">檔名</span> <code>Plots/${stem(d)}.md</code></div>
+      <div><span class="text-[var(--muted-foreground)]">連結</span> <code>[[${stem(d)}|${d.name}]]</code></div>
+      <div><span class="text-[var(--muted-foreground)]">圖上</span> <b>${stem(d)}</b></div>
+    </div>`).join('') + `<p class="text-[var(--muted-foreground)]">ID 前綴維持排序；搜尋「孤星」仍然找得到。內文的連結有別名，閱讀時看不到 emoji。</p>`;
+  const w = $('warn');
+  if (EMO[S.emo].bad) {
+    w.classList.remove('hidden');
+    w.innerHTML = `⚠️ <b>為什麼是反例</b>：閱讀狀態一變，檔名就要跟著改。每次在網頁標記「已讀」，重跑腳本都會改名，你自己在筆記裡手寫的 <code>[[連結]]</code> 會斷掉，Canvas 與外部書籤也一樣。狀態請交給<b>顏色群組</b>表達，emoji 只放<b>不會變動</b>的屬性（類型、階段）。`;
+  } else w.classList.add('hidden');
+
+  // json
+  const groups = p.groups.map(g => ({ query: g.query, color: { a: 1, rgb: parseInt(g.color.slice(1), 16) } }));
+  $('json').value = JSON.stringify({
+    search: S.hidePeriph ? 'path:Plots -tag:#类型/manga -tag:#类型/anime -tag:#类型/other' : 'path:Plots',
+    showTags: false, showAttachments: false, hideUnresolved: true, showOrphans: true,
+    colorGroups: groups, showArrow: S.arrows,
+  }, null, 2);
+}
+
+$('copy').onclick = async () => {
+  try { await navigator.clipboard.writeText($('json').value); $('copy').textContent = '✅ 已複製'; }
+  catch { $('json').select(); document.execCommand('copy'); $('copy').textContent = '✅ 已選取'; }
+  setTimeout(() => $('copy').textContent = '📋 複製', 1200);
+};
+
+// ---------- graph simulation ----------
+const cv = $('graph'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = window.devicePixelRatio || 1;
+const T = { x: 0, y: 0, k: 1 };
+const isLight = () => document.documentElement.classList.contains('light');
+const defaultColor = () => isLight() ? '#8c8a7e' : '#3b4254';
+
+let N = [];
+let NI = new Map();
+const visible = d => !(S.hidePeriph && PERIPH.has(d.cls));
+let alpha = 1;
+
+// Deterministic PRNG for reproducible layout
+let seedVal = 19860501;
+function seededRand() {
+  seedVal = (seedVal * 1664525 + 1013904223) >>> 0;
+  return seedVal / 4294967296;
+}
+
+function rebuildNodesSimulation(keepPositions = false) {
+  const prevPos = new Map(N.map(n => [n.d.id, { x: n.x, y: n.y }]));
+  const dates = [...new Set(DATA.map(d => d.date))].sort();
+  seedVal = 19860501;
+  N = DATA.map(d => {
+    const old = keepPositions ? prevPos.get(d.id) : null;
+    return {
+      d,
+      x: old ? old.x : (dates.indexOf(d.date) / Math.max(1, dates.length) - 0.5) * 2400 + (seededRand() - 0.5) * 110,
+      y: old ? old.y : (seededRand() - 0.5) * 1300,
+      vx: 0,
+      vy: 0,
+      r: 5 + Math.sqrt(deg.get(d.id) || 0) * 2.6,
+    };
+  });
+  NI = new Map(N.map(n => [n.d.id, n]));
+}
+
+rebuildNodesSimulation(false);
+
+function heat(a) { alpha = Math.max(alpha, a); renderSide(); }
+
+function tick() {
+  const nodes = N.filter(n => visible(n.d));
+  for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+    const a = nodes[i], b = nodes[j]; let dx = a.x - b.x, dy = a.y - b.y; let d2 = dx * dx + dy * dy + 0.01;
+    if (d2 > 1000000) continue; const f = 9200 / d2; const d = Math.sqrt(d2);
+    dx /= d; dy /= d; a.vx += dx * f; a.vy += dy * f; b.vx -= dx * f; b.vy -= dy * f;
+  }
+  EDGES.forEach(e => {
+    const a = NI.get(e.s), b = NI.get(e.t); if (!a || !b || !visible(a.d) || !visible(b.d)) return;
+    const dx = b.x - a.x, dy = b.y - a.y, d = Math.sqrt(dx * dx + dy * dy) + 0.01, f = (d - 145) * 0.012;
+    a.vx += dx / d * f; a.vy += dy / d * f; b.vx -= dx / d * f; b.vy -= dy / d * f;
+  });
+  nodes.forEach(n => { if (n === drag.node) return; n.vx -= n.x * 0.0018; n.vy -= n.y * 0.0028; n.x += n.vx * alpha; n.y += n.vy * alpha; n.vx *= 0.55; n.vy *= 0.55; });
+  alpha *= 0.985;
+}
+
+function resize() {
+  const r = cv.getBoundingClientRect(); W = r.width; H = r.height;
+  cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (!T.init && W > 0 && H > 0) {
+    T.x = W > 900 ? (W - 300) / 2 : W / 2;
+    T.y = H / 2;
+    T.k = Math.min(Math.max(600, W - 340) / 1850, H / 980);
+    T.init = true;
+  }
+  draw();
+}
+
+function ancestors(id) {
+  const s = new Set([id]), q = [id];
+  while (q.length) {
+    const c = q.pop();
+    const item = byId.get(c);
+    if (!item) continue;
+    item.nec.forEach(p => { if (byId.has(p) && !s.has(p)) { s.add(p); q.push(p); } });
+  }
+  return s;
+}
+
+function directSuccessors(id) {
+  const s = new Set();
+  DATA.forEach(d => {
+    if (d.nec && d.nec.includes(id)) s.add(d.id);
+  });
+  return s;
+}
+
+const JPG_COVER_IDS = new Set([11, 16, 23, 32, 39, 48, 50, 58, 67, 69, 77, 79, 81, 89, 102, 105, 106, 108, 109, 113, 117, 125, 128, 134]);
+function getCoverCandidates(id) {
+  const numId = Number(id);
+  const ext = JPG_COVER_IDS.has(numId) ? 'jpg' : 'png';
+  const alt = ext === 'jpg' ? 'png' : 'jpg';
+  return [
+    `../../arknight-tool-ArkPlots/web/dist/covers/${numId}.${ext}`,
+    `../../arknight-tool-ArkPlots/web/public/covers/${numId}.${ext}`,
+    `../arknight-tool-ArkPlots/web/dist/covers/${numId}.${ext}`,
+    `../arknight-tool-ArkPlots/web/public/covers/${numId}.${ext}`,
+    `../obsidian/ArkPlots Vault/Covers/${numId}.${ext}`,
+    `../covers/${numId}.${ext}`,
+    `web/dist/covers/${numId}.${ext}`,
+    `web/public/covers/${numId}.${ext}`,
+    `obsidian/ArkPlots Vault/Covers/${numId}.${ext}`,
+    `../../arknight-tool-ArkPlots/web/dist/covers/${numId}.${alt}`,
+    `../../arknight-tool-ArkPlots/web/public/covers/${numId}.${alt}`,
+    `web/dist/covers/${numId}.${alt}`,
+    `file:///m:/Github/arknight-tool-ArkPlots/web/dist/covers/${numId}.${ext}`,
+    `file:///m:/Github/arknight-tool-ArkPlots/web/public/covers/${numId}.${ext}`,
+    `file:///m:/Github/arknight-tool-ArkPlots/obsidian/ArkPlots%20Vault/Covers/${numId}.${ext}`,
+    `file:///m:/Github/arknight-tool-ArkPlots/web/dist/covers/${numId}.${alt}`,
+  ];
+}
+
+function statusBadgeHtml(st) {
+  const map = {
+    '已读': 'background:rgba(34,197,94,0.18);color:var(--aic-green);border:1.5px solid var(--aic-green)',
+    '正在读': 'background:#ffe600;color:#141517;border:1.5px solid #141517',
+    '计划读': 'background:rgba(0,240,255,0.16);color:var(--wuling-cyan);border:1.5px solid var(--wuling-cyan)',
+    '未读': 'background:rgba(138,146,158,0.14);color:var(--muted-foreground);border:1.5px solid var(--border)',
+  };
+  return `<span class="px-2 py-0.5 text-[11px] font-mono font-semibold" style="${map[st] || map['未读']};box-shadow:2px 2px 0 var(--hard-shadow)">${st}</span>`;
+}
+
+function updateSelectedPanel() {
+  const box = $('sel');
+  const selCard = $('selCard');
+  if (S.sel && byId.has(S.sel)) {
+    const d = byId.get(S.sel);
+    const ch = [...ancestors(S.sel)].filter(i => i !== S.sel).map(i => byId.get(i)).filter(Boolean).sort((a, b) => a.date.localeCompare(b.date));
+    const un = ch.filter(unread);
+    const nextPlots = [...directSuccessors(S.sel)].map(i => byId.get(i)).filter(Boolean).sort((a, b) => a.date.localeCompare(b.date));
+
+    if (box) box.classList.add('hidden');
+
+    if (selCard) {
+      const cands = getCoverCandidates(d.id);
+      const directPrereqs = (d.nec || []).map(pid => byId.get(pid)).filter(Boolean);
+      const tags = [
+        ...(d.country || []).map(x => `<span class="endfield-tag" style="color:var(--wuling-cyan)">🌍 ${x}</span>`),
+        ...(d.power || []).map(x => `<span class="endfield-tag" style="color:var(--primary)">🛡️ ${x}</span>`),
+        ...(d.topic || []).map(x => `<span class="endfield-tag" style="color:var(--hazard-orange)">🔮 ${x}</span>`),
+      ];
+
+      selCard.classList.remove('hidden');
+      selCard.innerHTML = `
+        <div class="space-y-3">
+          <div class="hazard-stripe" style="height:4px;margin:-14px -14px 8px -14px"></div>
+          <div class="flex items-center justify-between gap-2" style="border-bottom:1.5px solid var(--border);padding-bottom:6px">
+            <div class="min-w-0">
+              <div class="font-tech text-[10px] font-semibold flex items-center gap-1.5" style="color:var(--wuling-cyan)">
+                <span>AIC DOSSIER // NODE #${pad(d.id)}</span>
+                <span class="color-bars"><span></span><span></span><span></span><span></span></span>
+              </div>
+              <div class="font-semibold text-sm truncate mt-0.5" style="color:var(--primary)" title="${stem(d)}">${stem(d)}</div>
+            </div>
+            <button id="closeSelBtn" class="chip" style="padding:2px 8px;font-size:11px" title="關閉節點資訊 (Esc)">✕</button>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-1 text-xs">
+            <span class="text-[var(--muted-foreground)] font-mono">${d.date} · ${CLS_ZH[d.cls] || d.cls} · S${d.stage}</span>
+            ${statusBadgeHtml(d.status)}
+          </div>
+
+          <div class="text-xs endfield-subbox px-2.5 py-1.5 flex items-center justify-between">
+            <span>必要前置 <b>${d.nec.length}</b>・下一層關聯 <b>${nextPlots.length}</b></span>
+            ${d.ready ? '<span style="color:var(--aic-green);font-weight:700">✅ 前置已齊</span>' : '<span style="color:var(--hazard-orange);font-weight:700">⚠️ 前置未齊</span>'}
+          </div>
+
+          <div id="selCoverWrap" class="endfield-subbox overflow-hidden" style="border:1.5px solid var(--border);padding:2px">
+            <img id="selCoverImg" alt="${d.name}" class="block w-full" style="max-height:158px;object-fit:cover;">
+          </div>
+
+          ${tags.length ? `
+          <div class="space-y-1">
+            <div class="text-[11px] font-semibold text-[var(--muted-foreground)]">🚩 塔衛二檔案標記（地區／勢力／要素）</div>
+            <div class="flex flex-wrap gap-1">
+              ${tags.join('')}
+            </div>
+          </div>` : ''}
+
+          <div class="space-y-1.5 pt-2 border-t">
+            <div class="text-[11px] font-semibold" style="color:var(--wuling-cyan)">━━ 直屬必要前置（實線，${directPrereqs.length} 部）</div>
+            ${directPrereqs.length ? `<div class="flex flex-wrap gap-1.5">${directPrereqs.map(p => `<button type="button" class="jump-pill" data-jump-id="${p.id}"><span>${p.status === '已读' ? '✅' : (p.status === '计划读' ? '📌' : '⏳')}</span><span>${p.name}</span></button>`).join('')}</div>` : '<div class="text-[var(--muted-foreground)]">無直屬必要前置（可直接閱讀）</div>'}
+          </div>
+
+          <div class="space-y-1.5 pt-2 border-t">
+            <div class="text-[11px] font-semibold" style="color:var(--primary)">╌╌ 下一層後續劇情（虛線，${nextPlots.length} 部）</div>
+            ${nextPlots.length ? `<div class="flex flex-wrap gap-1.5">${nextPlots.map(p => `<button type="button" class="jump-pill" style="border-style:dashed;border-color:var(--primary)" data-jump-id="${p.id}"><span>${p.status === '已读' ? '✅' : (p.status === '计划读' ? '📌' : '⏳')}</span><span>${p.name}</span></button>`).join('')}</div>` : '<div class="text-[var(--muted-foreground)]">目前無後續劇情直接依賴此篇</div>'}
+          </div>
+
+          <div class="space-y-1.5 pt-2 border-t">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-[var(--muted-foreground)]">📜 完整前置鏈建議順序</span>
+              <span class="text-[11px] font-mono text-[var(--muted-foreground)]">共 ${ch.length} / 未讀 ${un.length}</span>
+            </div>
+            ${un.length ? `<div class="flex flex-wrap gap-1">${un.map((x, idx) => `<button type="button" class="jump-pill" data-jump-id="${x.id}"><span style="color:var(--primary);font-weight:700">${idx + 1}.</span><span>${x.name}</span></button>`).join('')}</div>` : '<div class="text-xs" style="color:var(--aic-green)">✅ 所有前置皆已讀完！</div>'}
+          </div>
+        </div>`;
+
+      const closeBtn = $('closeSelBtn');
+      if (closeBtn) {
+        closeBtn.onclick = e => {
+          e.stopPropagation();
+          S.sel = null;
+          updateSelectedPanel();
+          draw();
+        };
+      }
+      selCard.querySelectorAll('[data-jump-id]').forEach(btn => {
+        btn.onclick = e => {
+          e.stopPropagation();
+          const targetId = Number(btn.dataset.jumpId);
+          if (byId.has(targetId)) {
+            S.sel = targetId;
+            updateSelectedPanel();
+            draw();
+          }
+        };
+      });
+
+      const img = $('selCoverImg');
+      if (img) {
+        let idx = 0;
+        img.onerror = () => {
+          idx++;
+          if (idx < cands.length) img.src = cands[idx];
+          else if ($('selCoverWrap')) $('selCoverWrap').classList.add('hidden');
+        };
+        img.src = cands[0];
+      }
+    }
+  } else {
+    if (box) box.classList.add('hidden');
+    if (selCard) selCard.classList.add('hidden');
+  }
+}
+
+// Helper to draw an Endfield Chamfered Industrial AIC Relay Module on Canvas
+function drawEndfieldNode(ctx, x, y, r, fillColor, outlineColor, isSelected, isNextLayer, isReady, light) {
+  const rad = Math.max(5.5, r);
+  const cut = Math.max(2.2, rad * 0.36);
+
+  // 1. Selected targeting lock brackets (Signal Yellow L-brackets)
+  if (isSelected) {
+    const br = rad + 6 / Math.sqrt(T.k);
+    const bl = Math.max(4, br * 0.52);
+    ctx.setLineDash([]);
+    ctx.strokeStyle = light ? '#141517' : '#ffe600';
+    ctx.lineWidth = 2.4 / T.k;
+    ctx.beginPath();
+    // Top-left L
+    ctx.moveTo(x - br, y - br + bl); ctx.lineTo(x - br, y - br); ctx.lineTo(x - br + bl, y - br);
+    // Top-right L
+    ctx.moveTo(x + br - bl, y - br); ctx.lineTo(x + br, y - br); ctx.lineTo(x + br, y - br + bl);
+    // Bottom-right L
+    ctx.moveTo(x + br, y + br - bl); ctx.lineTo(x + br, y + br); ctx.lineTo(x + br - bl, y + br);
+    // Bottom-left L
+    ctx.moveTo(x - br + bl, y + br); ctx.lineTo(x - br, y + br); ctx.lineTo(x - br, y + br - bl);
+    ctx.stroke();
+  } else if (isNextLayer) {
+    const ar = rad + 4.2 / Math.sqrt(T.k);
+    ctx.setLineDash([4.5 / T.k, 3 / T.k]);
+    ctx.strokeStyle = light ? '#e63e00' : '#ffe600';
+    ctx.lineWidth = 1.9 / T.k;
+    ctx.strokeRect(x - ar, y - ar, ar * 2, ar * 2);
+    ctx.setLineDash([]);
+  } else if (isReady) {
+    const ar = rad + 3.2 / Math.sqrt(T.k);
+    ctx.setLineDash([]);
+    ctx.strokeStyle = light ? 'rgba(0, 119, 153, 0.55)' : 'rgba(0, 240, 255, 0.55)';
+    ctx.lineWidth = 1.3 / T.k;
+    ctx.strokeRect(x - ar, y - ar, ar * 2, ar * 2);
+  }
+
+  // 2. Chamfered Industrial Octagon Module Body
+  ctx.beginPath();
+  ctx.moveTo(x - rad + cut, y - rad);
+  ctx.lineTo(x + rad - cut, y - rad);
+  ctx.lineTo(x + rad, y - rad + cut);
+  ctx.lineTo(x + rad, y + rad - cut);
+  ctx.lineTo(x + rad - cut, y + rad);
+  ctx.lineTo(x - rad + cut, y + rad);
+  ctx.lineTo(x - rad, y + rad - cut);
+  ctx.lineTo(x - rad, y - rad + cut);
+  ctx.closePath();
+
+  ctx.fillStyle = fillColor;
+  ctx.fill();
+
+  ctx.setLineDash([]);
+  ctx.lineWidth = (isSelected ? 2.5 : 1.6) / T.k;
+  ctx.strokeStyle = isSelected ? (light ? '#141517' : '#ffffff') : outlineColor;
+  ctx.stroke();
+
+  // Inner technical core dot
+  ctx.fillStyle = isSelected ? '#141517' : 'rgba(255,255,255,0.75)';
+  const core = Math.max(1.5, rad * 0.24);
+  ctx.fillRect(x - core * 0.5, y - core * 0.5, core, core);
+}
+
+function draw() {
+  if (!W) return;
+  const light = isLight();
+  ctx.clearRect(0, 0, W, H);
+
+  // 1. Endfield Engineering Blueprint / Talos-II Topographical Grid
+  ctx.fillStyle = light ? '#ecebe6' : '#090a0e';
+  ctx.fillRect(0, 0, W, H);
+
+  const minorStep = 32;
+  const majorStep = 128;
+
+  // Minor grid lines
+  ctx.strokeStyle = light ? 'rgba(20, 21, 23, 0.055)' : 'rgba(255, 255, 255, 0.035)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let gx = ((T.x % minorStep) + minorStep) % minorStep; gx < W; gx += minorStep) {
+    ctx.moveTo(gx, 0); ctx.lineTo(gx, H);
+  }
+  for (let gy = ((T.y % minorStep) + minorStep) % minorStep; gy < H; gy += minorStep) {
+    ctx.moveTo(0, gy); ctx.lineTo(W, gy);
+  }
+  ctx.stroke();
+
+  // Major engineering grid lines & intersection crosshairs (+)
+  ctx.strokeStyle = light ? 'rgba(20, 21, 23, 0.13)' : 'rgba(0, 240, 255, 0.085)';
+  ctx.beginPath();
+  const startMx = ((T.x % majorStep) + majorStep) % majorStep;
+  const startMy = ((T.y % majorStep) + majorStep) % majorStep;
+  for (let gx = startMx; gx < W; gx += majorStep) {
+    ctx.moveTo(gx, 0); ctx.lineTo(gx, H);
+  }
+  for (let gy = startMy; gy < H; gy += majorStep) {
+    ctx.moveTo(0, gy); ctx.lineTo(W, gy);
+  }
+  ctx.stroke();
+
+  // Blueprint crosshair '+' ticks at major intersections
+  ctx.strokeStyle = light ? 'rgba(20, 21, 23, 0.35)' : 'rgba(255, 230, 0, 0.28)';
+  ctx.beginPath();
+  for (let gx = startMx; gx < W; gx += majorStep) {
+    for (let gy = startMy; gy < H; gy += majorStep) {
+      ctx.moveTo(gx - 4, gy); ctx.lineTo(gx + 4, gy);
+      ctx.moveTo(gx, gy - 4); ctx.lineTo(gx, gy + 4);
+    }
+  }
+  ctx.stroke();
+
+  // Top & Left Engineering Ruler Ticks + Sector Watermark
+  ctx.fillStyle = light ? 'rgba(20, 21, 23, 0.38)' : 'rgba(138, 146, 158, 0.42)';
+  ctx.font = '10px "JetBrains Mono", monospace';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText('ENDFIELD INDUSTRIES // TALOS-II SECTOR MAP // SCALE ' + T.k.toFixed(2) + 'x', 14, 10);
+
+  ctx.save();
+  ctx.translate(T.x, T.y);
+  ctx.scale(T.k, T.k);
+
+  const chain = S.sel && byId.has(S.sel) ? ancestors(S.sel) : null;
+  const nextLayer = S.sel && byId.has(S.sel) ? directSuccessors(S.sel) : null;
+  const qm = S.q ? (d => d.name.includes(S.q) || d.country.some(c => c.includes(S.q)) || d.power.some(p => p.includes(S.q)) || d.topic.some(t => t.includes(S.q))) : null;
+  const dim = n => (chain && !chain.has(n.d.id) && !(nextLayer && nextLayer.has(n.d.id))) || (qm && !qm(n.d));
+
+  // 2. Edges: Solid Wuling Cyan for Upstream Prerequisites vs Dashed Signal Yellow / Hazard Orange for Next-Layer Successors
+  EDGES.forEach(e => {
+    const a = NI.get(e.s), b = NI.get(e.t); if (!a || !b || !visible(a.d) || !visible(b.d)) return;
+    const isPrereq = chain && chain.has(e.s) && chain.has(e.t);
+    const isNextLayer = nextLayer && e.t === S.sel && nextLayer.has(e.s);
+    const hot = isPrereq || isNextLayer;
+    if (isNextLayer) {
+      ctx.strokeStyle = light ? '#e63e00' : '#ffe600';
+      ctx.setLineDash([7 / Math.sqrt(T.k), 4.5 / Math.sqrt(T.k)]);
+    } else {
+      ctx.strokeStyle = isPrereq
+        ? (light ? '#007799' : '#00f0ff')
+        : (light ? 'rgba(20,21,23,.22)' : 'rgba(138,146,158,.24)');
+      if (chain && !hot) ctx.strokeStyle = light ? 'rgba(20,21,23,.06)' : 'rgba(138,146,158,.06)';
+      ctx.setLineDash([]);
+    }
+    ctx.lineWidth = (hot ? 2.4 : 1.0) / Math.sqrt(T.k);
+
+    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+    const ex = b.x - ux * (b.r + 3.5), ey = b.y - uy * (b.r + 3.5);
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (S.arrows) {
+      const s = hot ? 7.8 : 5.5;
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex - ux * s - uy * s * 0.58, ey - uy * s + ux * s * 0.58);
+      ctx.lineTo(ex - ux * s + uy * s * 0.58, ey - uy * s - ux * s * 0.58);
+      ctx.closePath();
+      ctx.fill();
+    }
+  });
+
+  // 3. Nodes (Endfield Chamfered AIC Relay Modules)
+  const outlineCol = light ? '#141517' : '#050608';
+  N.forEach(n => {
+    if (!visible(n.d)) return;
+    ctx.globalAlpha = dim(n) ? 0.14 : 1;
+    const fill = colorOf(n.d) || defaultColor();
+    const isSel = n.d.id === S.sel || n === S.hover;
+    const isNext = Boolean(nextLayer && nextLayer.has(n.d.id));
+    const isReady = unread(n.d) && n.d.ready && !dim(n);
+    drawEndfieldNode(ctx, n.x, n.y, n.r, fill, outlineCol, isSel, isNext, isReady, light);
+
+    // Floating Endfield Signal Yellow Callout Tag above Selected Node
+    if (n.d.id === S.sel) {
+      const tagText = `AIC-NODE // #${pad(n.d.id)}`;
+      const fontSz = Math.max(9, Math.round(10 / T.k));
+      ctx.font = `700 ${fontSz}px "JetBrains Mono", monospace`;
+      const tw = ctx.measureText(tagText).width + 10 / T.k;
+      const th = fontSz + 6 / T.k;
+      const tx = n.x - tw / 2;
+      const ty = n.y - n.r - th - 9 / T.k;
+      ctx.fillStyle = '#ffe600';
+      ctx.fillRect(tx, ty, tw, th);
+      ctx.strokeStyle = '#141517';
+      ctx.lineWidth = 1.4 / T.k;
+      ctx.strokeRect(tx, ty, tw, th);
+      ctx.fillStyle = '#141517';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(tagText, n.x, ty + th / 2);
+    }
+  });
+
+  // 4. Industrial Blueprint Labels
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  const fs = Math.max(10, Math.round(11.5 / T.k));
+  ctx.font = `700 ${fs}px "Noto Sans TC", "Chakra Petch", sans-serif`;
+  N.forEach(n => {
+    if (!visible(n.d)) return;
+    const isNext = nextLayer && nextLayer.has(n.d.id);
+    const show = n === S.hover || n.d.id === S.sel || (chain && chain.has(n.d.id)) || isNext || (qm && qm(n.d)) || (n.r * T.k >= S.fade && !dim(n));
+    if (!show) return;
+    ctx.globalAlpha = dim(n) ? 0.25 : 1;
+    const label = stem(n.d);
+    const ly = n.y + n.r + 4.5 / T.k;
+
+    // High-contrast plate halo behind text
+    ctx.strokeStyle = light ? 'rgba(236, 235, 230, 0.92)' : 'rgba(9, 10, 14, 0.92)';
+    ctx.lineWidth = 3.2 / T.k;
+    ctx.strokeText(label, n.x, ly);
+
+    ctx.fillStyle = n.d.id === S.sel
+      ? (light ? '#141517' : '#ffe600')
+      : (isNext ? (light ? '#c23000' : '#fde047') : (light ? '#141517' : '#f2f3f5'));
+    ctx.fillText(label, n.x, ly);
+  });
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function loop() { if (alpha > 0.02) { tick(); tick(); draw(); } requestAnimationFrame(loop); }
+
+// ---------- interaction ----------
+const drag = { node: null, pan: false, sx: 0, sy: 0, moved: false };
+let lastTipKey = '';
+const toWorld = (cx, cy) => ({ x: (cx - T.x) / T.k, y: (cy - T.y) / T.k });
+function pick(cx, cy) { const p = toWorld(cx, cy); let best = null, bd = Infinity; N.forEach(n => { if (!visible(n.d)) return; const d = Math.hypot(n.x - p.x, n.y - p.y); if (d < n.r + 4 / T.k && d < bd) { bd = d; best = n; } }); return best; }
+const rel = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+cv.addEventListener('pointerdown', e => { const [x, y] = rel(e); drag.node = pick(x, y); drag.pan = !drag.node; drag.sx = x; drag.sy = y; drag.moved = false; cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointermove', e => {
+  const [x, y] = rel(e);
+  if (drag.node || drag.pan) {
+    if (Math.hypot(x - drag.sx, y - drag.sy) > 3) drag.moved = true;
+    if (drag.node) { const p = toWorld(x, y); drag.node.x = p.x; drag.node.y = p.y; alpha = Math.max(alpha, 0.3); }
+    else { T.x += x - drag.sx; T.y += y - drag.sy; drag.sx = x; drag.sy = y; }
+    draw(); return;
+  }
+  const n = pick(x, y); if (n !== S.hover) { S.hover = n; draw(); }
+  const tip = $('tip');
+  if (n) {
+    const d = n.d;
+    tip.classList.remove('hidden');
+    const tipKey = `${d.id}|${S.emo}|${S.pos}|${d.status}`;
+    if (tipKey !== lastTipKey) {
+      lastTipKey = tipKey;
+      const cands = getCoverCandidates(d.id);
+      tip.innerHTML = `<div class="font-tech text-[10px]" style="color:var(--wuling-cyan)">AIC SCAN // #${pad(d.id)}</div><div class="font-semibold" style="color:var(--primary)">${stem(d)}</div><div class="text-[var(--muted-foreground)] font-mono">${d.date} · ${CLS_ZH[d.cls] || d.cls} · S${d.stage} · ${d.status}</div><div>必要前置 ${d.nec.length}・被引用 ${inDeg.get(d.id) || 0}${d.ready ? '・<span style="color:var(--aic-green)">前置齊全</span>' : '・<span style="color:var(--hazard-orange)">前置未齊</span>'}</div><div id="tipCoverWrap" class="mt-2 endfield-subbox overflow-hidden" style="border:1.5px solid var(--border);padding:2px"><img id="tipCoverImg" alt="${d.name}" class="block w-full" style="width:236px;max-height:132px;object-fit:cover;"></div>`;
+      const img = $('tipCoverImg');
+      if (img) {
+        let idx = 0;
+        img.onerror = () => {
+          idx++;
+          if (idx < cands.length) img.src = cands[idx];
+          else if ($('tipCoverWrap')) $('tipCoverWrap').classList.add('hidden');
+        };
+        img.src = cands[0];
+      }
+    }
+    const tw = tip.offsetWidth || 260;
+    const th = tip.offsetHeight || 200;
+    const rightLimit = ($('selCard') && !$('selCard').classList.contains('hidden')) ? W - 348 : W - 12;
+    let lx = x + 16;
+    if (lx + tw > rightLimit) lx = Math.max(12, x - tw - 16);
+    let ty = y + 16;
+    if (ty + th > H - 12) ty = Math.max(12, H - th - 12);
+    tip.style.left = `${Math.round(lx)}px`;
+    tip.style.top = `${Math.round(ty)}px`;
+  } else {
+    tip.classList.add('hidden');
+    lastTipKey = '';
+  }
+});
+cv.addEventListener('pointerleave', () => {
+  if (S.hover) { S.hover = null; draw(); }
+  $('tip').classList.add('hidden');
+  lastTipKey = '';
+});
+cv.addEventListener('pointerup', e => {
+  if (!drag.moved) {
+    const [x, y] = rel(e); const n = pick(x, y);
+    S.sel = n && n.d.id !== S.sel ? n.d.id : null;
+    if (S.sel) { $('tip').classList.add('hidden'); lastTipKey = ''; }
+    updateSelectedPanel();
+    draw();
+  }
+  drag.node = null; drag.pan = false;
+});
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && S.sel) {
+    S.sel = null;
+    updateSelectedPanel();
+    draw();
+  }
+});
+cv.addEventListener('wheel', e => {
+  e.preventDefault(); const [x, y] = rel(e); const k = Math.exp(-e.deltaY * 0.0015);
+  const nk = Math.min(4, Math.max(0.15, T.k * k)); T.x = x - (x - T.x) * (nk / T.k); T.y = y - (y - T.y) * (nk / T.k); T.k = nk; draw();
+}, { passive: false });
+new ResizeObserver(resize).observe(cv);
+new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+// ---------- File Binding, Persistent Memory & Auto-Watch ----------
+let boundRecordHandle = null;
+let boundPlotlineHandle = null;
+let lastObservedModTime = 0;
+
+function applyRecordsData(recordsObj, meta) {
+  const normalized = normalizeRecords(recordsObj);
+  const fullRecords = {};
+  for (const d of DATA) {
+    const k = String(d.id);
+    fullRecords[k] = VALID_STATUSES.has(normalized[k]) ? normalized[k] : '未读';
+  }
+  currentRecords = { ...normalized, ...fullRecords };
+  recomputeGraphState();
+  safeSetLS(STORAGE_KEYS.RECORDS, currentRecords);
+  if (meta) safeSetLS(STORAGE_KEYS.RECORDS_META, meta);
+  updateSourcePanel(meta);
+  buildPresets();
+  buildEmojis();
+  refresh();
+}
+
+function applyPlotlineData(rawPlotline, fileName = 'Plotline.json') {
+  const { plots, anomalies } = normalizePlotline(rawPlotline);
+  DATA = plots;
+  recomputeGraphState();
+  rebuildNodesSimulation(true);
+  safeSetLS(STORAGE_KEYS.PLOTLINE, DATA);
+  heat(0.45);
+  buildPresets();
+  buildEmojis();
+  refresh();
+  showSyncMessage(`✅ 已載入 ${fileName}（${plots.length} 部劇情${anomalies.length ? `，自動清理 ${anomalies.length} 項異常` : ''}）`);
+}
+
+async function readFromPlotlineHandle(handle, requestPerm = false) {
+  if (!handle) return false;
+  try {
+    let perm = 'granted';
+    if (typeof handle.queryPermission === 'function') {
+      perm = await handle.queryPermission({ mode: 'read' });
+      if (perm !== 'granted' && requestPerm && typeof handle.requestPermission === 'function') {
+        perm = await handle.requestPermission({ mode: 'read' });
+      }
+    }
+    if (perm !== 'granted') return false;
+    const file = await handle.getFile();
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    applyPlotlineData(parsed, file.name || handle.name || 'Plotline.json');
+    boundPlotlineHandle = handle;
+    await saveFileHandle('plotline', handle);
+    return true;
+  } catch (err) {
+    showSyncMessage(`⚠️ Plotline 讀取失敗：${err.message || err}`, true);
+    return false;
+  }
+}
+
+async function readFromRecordHandle(handle, requestPerm = false) {
+  if (!handle) return false;
+  try {
+    let perm = 'granted';
+    if (typeof handle.queryPermission === 'function') {
+      perm = await handle.queryPermission({ mode: 'read' });
+      if (perm !== 'granted' && requestPerm && typeof handle.requestPermission === 'function') {
+        perm = await handle.requestPermission({ mode: 'read' });
+      }
+    }
+    if (perm !== 'granted') {
+      $('handleStatus').textContent = `📌 已記住 ${handle.name}（點「重新同步」授權讀取）`;
+      return false;
+    }
+    const file = await handle.getFile();
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Array.isArray(parsed.data)) {
+      applyPlotlineData(parsed, file.name || handle.name || 'Plotline.json');
+      boundPlotlineHandle = handle;
+      await saveFileHandle('plotline', handle);
+      return true;
+    }
+    lastObservedModTime = file.lastModified || Date.now();
+    const meta = {
+      fileName: file.name || handle.name || 'Read_record.json',
+      lastModified: file.lastModified || Date.now(),
+      syncedAt: new Date().toISOString(),
+      sourceType: 'handle',
+    };
+    applyRecordsData(parsed, meta);
+    boundRecordHandle = handle;
+    await saveFileHandle('read_record', handle);
+    $('handleStatus').textContent = `📌 已記住並連線：${meta.fileName}`;
+    showSyncMessage(`✅ 已同步 ${meta.fileName}（更新時間：${new Date(meta.lastModified).toLocaleTimeString()}）`);
+    return true;
+  } catch (err) {
+    showSyncMessage(`⚠️ 讀取失敗：${err.message || err}`, true);
+    return false;
+  }
+}
+
+async function handleSelectedJsonText(text, fileName, sourceType = 'file') {
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    showSyncMessage(`⚠️ 檔案 ${fileName} 不是有效的 JSON 格式`, true);
+    return;
+  }
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Array.isArray(parsed.data)) {
+    applyPlotlineData(parsed, fileName);
+    return;
+  }
+  const meta = {
+    fileName: fileName || 'Read_record.json',
+    lastModified: Date.now(),
+    syncedAt: new Date().toISOString(),
+    sourceType,
+  };
+  applyRecordsData(parsed, meta);
+  $('handleStatus').textContent = sourceType === 'handle'
+    ? `📌 已記住並連線：${meta.fileName}`
+    : `💾 已快取記憶：${meta.fileName}`;
+  showSyncMessage(`✅ 已載入並記住 ${meta.fileName}`);
+}
+
+$('bindRecordBtn').onclick = async () => {
+  if (typeof window.showOpenFilePicker === 'function') {
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        id: 'arkplots-read-record',
+        multiple: false,
+        types: [{ description: 'ArkPlots Read_record.json', accept: { 'application/json': ['.json'] } }],
+      });
+      if (handle) {
+        await readFromRecordHandle(handle, true);
+      }
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+    }
+  }
+  $('recordFileInput').click();
+};
+
+$('recordFileInput').onchange = async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    await handleSelectedJsonText(text, file.name, 'cache');
+  } catch (err) {
+    showSyncMessage(`⚠️ 讀取失敗：${err.message || err}`, true);
+  } finally {
+    e.target.value = '';
+  }
+};
+
+$('bindPlotlineBtn').onclick = async () => {
+  if (typeof window.showOpenFilePicker === 'function') {
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        id: 'arkplots-plotline',
+        multiple: false,
+        types: [{ description: 'ArkPlots Plotline.json', accept: { 'application/json': ['.json'] } }],
+      });
+      if (handle) {
+        await readFromPlotlineHandle(handle, true);
+      }
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+    }
+  }
+  $('plotlineFileInput').click();
+};
+
+$('plotlineFileInput').onchange = async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    applyPlotlineData(JSON.parse(text), file.name);
+  } catch (err) {
+    showSyncMessage(`⚠️ Plotline 讀取失敗：${err.message || err}`, true);
+  } finally {
+    e.target.value = '';
+  }
+};
+
+$('resyncBtn').onclick = async () => {
+  if (!boundPlotlineHandle) {
+    boundPlotlineHandle = await loadFileHandle('plotline');
+  }
+  if (boundPlotlineHandle) {
+    await readFromPlotlineHandle(boundPlotlineHandle, false);
+  }
+  if (!boundRecordHandle) {
+    boundRecordHandle = await loadFileHandle('read_record');
+  }
+  if (boundRecordHandle) {
+    await readFromRecordHandle(boundRecordHandle, true);
+  } else {
+    const cached = safeGetLS(STORAGE_KEYS.RECORDS);
+    if (cached) {
+      applyRecordsData(cached, safeGetLS(STORAGE_KEYS.RECORDS_META));
+      showSyncMessage('💾 已從瀏覽器快取重新載入紀錄（若需綁定新檔案請點左側按鈕）');
+    } else {
+      showSyncMessage('ℹ️ 尚未綁定本機 Read_record.json，請先點擊「選擇並記住 Read_record.json」');
+    }
+  }
+};
+
+$('resetDefaultBtn').onclick = async () => {
+  safeRemoveLS(STORAGE_KEYS.RECORDS);
+  safeRemoveLS(STORAGE_KEYS.RECORDS_META);
+  safeRemoveLS(STORAGE_KEYS.PLOTLINE);
+  await clearFileHandles();
+  boundRecordHandle = null;
+  boundPlotlineHandle = null;
+  DATA = DEFAULT_DATA.map(d => ({ ...d, country: [...d.country], power: [...d.power], topic: [...d.topic], nec: [...d.nec] }));
+  currentRecords = { ...DEFAULT_RECORDS };
+  recomputeGraphState();
+  rebuildNodesSimulation(true);
+  $('handleStatus').textContent = '已重置為內建快照（25 筆用戶紀錄）';
+  updateSourcePanel(null);
+  buildPresets();
+  buildEmojis();
+  refresh();
+  showSyncMessage('🔄 已重置為內建預設快照');
+};
+
+$('autoWatch').onchange = e => {
+  S.autoWatch = e.target.checked;
+  persistUIState();
+  if (S.autoWatch && boundRecordHandle) {
+    readFromRecordHandle(boundRecordHandle, true);
+  }
+};
+
+// Drag & Drop support anywhere on the page
+window.addEventListener('dragover', e => {
+  e.preventDefault();
+  $('sourceCard').classList.add('drop-active');
+});
+window.addEventListener('dragleave', e => {
+  if (e.target === document.documentElement || e.target === document.body) {
+    $('sourceCard').classList.remove('drop-active');
+  }
+});
+window.addEventListener('drop', async e => {
+  e.preventDefault();
+  $('sourceCard').classList.remove('drop-active');
+  try {
+    if (e.dataTransfer.items && e.dataTransfer.items[0] && typeof e.dataTransfer.items[0].getAsFileSystemHandle === 'function') {
+      const handle = await e.dataTransfer.items[0].getAsFileSystemHandle();
+      if (handle && handle.kind === 'file') {
+        const file = await handle.getFile();
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Array.isArray(parsed.data)) {
+          applyPlotlineData(parsed, file.name);
+          boundPlotlineHandle = handle;
+          await saveFileHandle('plotline', handle);
+        } else {
+          await readFromRecordHandle(handle, true);
+        }
+        return;
+      }
+    }
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (file) {
+      const text = await file.text();
+      await handleSelectedJsonText(text, file.name, 'cache');
+    }
+  } catch (err) {
+    showSyncMessage(`⚠️ 拖放讀取失敗：${err.message || err}`, true);
+  }
+});
+
+// Auto-watch timer & window focus check
+setInterval(async () => {
+  if (!S.autoWatch || !boundRecordHandle) return;
+  try {
+    if (typeof boundRecordHandle.queryPermission === 'function') {
+      const perm = await boundRecordHandle.queryPermission({ mode: 'read' });
+      if (perm !== 'granted') return;
+    }
+    const file = await boundRecordHandle.getFile();
+    if (file.lastModified && file.lastModified !== lastObservedModTime) {
+      await readFromRecordHandle(boundRecordHandle, false);
+    }
+  } catch {}
+}, 2500);
+
+window.addEventListener('focus', async () => {
+  if (!S.autoWatch || !boundRecordHandle) return;
+  try {
+    const file = await boundRecordHandle.getFile();
+    if (file.lastModified && file.lastModified !== lastObservedModTime) {
+      await readFromRecordHandle(boundRecordHandle, false);
+    }
+  } catch {}
+});
+
+// Restore persisted state on boot (0-click memory!)
+async function initPersistence() {
+  const cachedPlotline = safeGetLS(STORAGE_KEYS.PLOTLINE);
+  if (Array.isArray(cachedPlotline) && cachedPlotline.length > 0) {
+    try {
+      const { plots } = normalizePlotline(cachedPlotline);
+      DATA = plots;
+    } catch {}
+  }
+  const cachedRecords = safeGetLS(STORAGE_KEYS.RECORDS);
+  const cachedMeta = safeGetLS(STORAGE_KEYS.RECORDS_META);
+  if (cachedRecords && typeof cachedRecords === 'object') {
+    try {
+      const normalized = normalizeRecords(cachedRecords);
+      const fullRecords = {};
+      for (const d of DATA) {
+        const k = String(d.id);
+        fullRecords[k] = VALID_STATUSES.has(normalized[k]) ? normalized[k] : '未读';
+      }
+      currentRecords = { ...normalized, ...fullRecords };
+      if (cachedMeta && cachedMeta.fileName) {
+        $('handleStatus').textContent = `💾 已載入上次記憶：${cachedMeta.fileName}`;
+      }
+    } catch {}
+  }
+  recomputeGraphState();
+  rebuildNodesSimulation(true);
+  updateSourcePanel(cachedMeta);
+  buildPresets();
+  buildEmojis();
+  refresh();
+
+  const savedPlotlineHandle = await loadFileHandle('plotline');
+  if (savedPlotlineHandle) {
+    boundPlotlineHandle = savedPlotlineHandle;
+    await readFromPlotlineHandle(savedPlotlineHandle, false);
+  }
+  const savedHandle = await loadFileHandle('read_record');
+  if (savedHandle) {
+    boundRecordHandle = savedHandle;
+    $('handleStatus').textContent = `📌 已記住檔案：${savedHandle.name || 'Read_record.json'}`;
+    await readFromRecordHandle(savedHandle, false);
+  }
+}
+
+// Expose testable API on window.ArkPlotsGraph for automated verification
+window.ArkPlotsGraph = {
+  normalizePlotline,
+  normalizeRecords,
+  applyRecordsData,
+  applyPlotlineData,
+  selectNode: id => {
+    const num = Number(id);
+    S.sel = byId.has(num) ? num : null;
+    updateSelectedPanel();
+    draw();
+  },
+  getState: () => ({
+    plotsCount: DATA.length,
+    readCount: DATA.filter(d => d.status === '已读').length,
+    planCount: DATA.filter(d => d.status === '计划读').length,
+    readingCount: DATA.filter(d => d.status === '正在读').length,
+    readyCount: DATA.filter(d => d.ready).length,
+    preset: S.preset,
+    emo: S.emo,
+    selectedId: S.sel,
+    overlay: S.overlay,
+    recordFileName: $('recordFileName').textContent,
+  }),
+};
+
+buildPresets(); buildEmojis(); renderSide(); updateSourcePanel();
+for (let i = 0; i < 220; i++) tick();
+const initSelParam = Number(new URLSearchParams(window.location.search).get('sel'));
+if (initSelParam && byId.has(initSelParam)) {
+  S.sel = initSelParam;
+}
+resize(); updateSelectedPanel(); loop();
+initPersistence();
+</script>
+</body>
+</html>
