@@ -54,8 +54,9 @@ sequenceDiagram
   end
 ```
 
-1. **第一層（`IndexedDB` 記住真實檔案控制代碼）**：
-   - 使用 Chromium `File System Access API` 取得 `FileSystemFileHandle`，並於 JSON 驗證通過後存入 `IndexedDB` (`ArkPlotsGraphDB` / `file_handles`)。
+1. **第一層（`IndexedDB` 記住真實資料夾與檔案控制代碼）**：
+   - **資料夾一次綁定 (`showDirectoryPicker`)**：點擊「📁 綁定 `ArkPlots` 資料夾 (含封面)」或拖放 `ArkPlots` 資料夾時，取得 `FileSystemDirectoryHandle` 存入 `IndexedDB` (`key: 'arkplots_dir'`)，由 [`readFromArkPlotsDirHandle()`](file:///m:/Github/ArkPlots-Graph/index.html#L1844-L1901) 自動定位該目錄內的 `Read_record.json`、`Plotline.json`，並透過 [`scanCoversFromDirHandle()`](file:///m:/Github/ArkPlots-Graph/index.html#L1805-L1842) 自動掃描 `web/dist/covers/`、`_internal/web/dist/covers/`（PyInstaller 安裝版）等路徑建立 `Blob URL` 封面快取 (`customCoverUrls`)，徹底解除兩個資料夾必須並排擺放的位置限制。
+   - **單一檔案綁定 (`showOpenFilePicker`)**：亦支援透過「📌 單選紀錄」取得單一 `FileSystemFileHandle` 存入 `IndexedDB` (`ArkPlotsGraphDB` / `file_handles`)。
    - 支援「🔄 重新同步」一鍵重讀，以及勾選「⚡ 自動監聽存檔更新」時每 2.5 秒（與視窗 `focus` 時）比對 `file.lastModified` 自動刷新。
 2. **第二層（`localStorage` 0 毫秒快取還原）**：
    - 每次成功讀取 `Read_record.json`、`Plotline.json` 或切換 UI 設定時，同步寫入 `localStorage`。
@@ -71,6 +72,7 @@ sequenceDiagram
 
 | 儲存媒介 | 名稱 / Key | 內容格式 | 負責讀寫函式 | 用途說明 |
 | --- | --- | --- | --- | --- |
+| `IndexedDB` | `ArkPlotsGraphDB` / `file_handles` (`arkplots_dir`) | `FileSystemDirectoryHandle` | `saveFileHandle()` / `readFromArkPlotsDirHandle()` | 記住使用者選取的 `ArkPlots` 主資料夾，自動定位 `Read_record.json`、`Plotline.json` 與 `covers/` 封面圖 |
 | `IndexedDB` | `ArkPlotsGraphDB` / `file_handles` (`read_record`) | `FileSystemFileHandle` | `saveFileHandle()` / `loadFileHandle()` | 記住使用者選取的 `Read_record.json` 檔案控制代碼，跨主題共享 |
 | `IndexedDB` | `ArkPlotsGraphDB` / `file_handles` (`plotline`) | `FileSystemFileHandle` | `saveFileHandle()` / `loadFileHandle()` | 記住使用者自訂載入的 `Plotline.json` 檔案控制代碼 |
 | `localStorage` | `arkplots_graph.records.v1` | `Record<string, ReadStatus>` | `applyRecordsData()` / `initPersistence()` | 快取最新解析的劇情閱讀狀態（跨主題共享） |

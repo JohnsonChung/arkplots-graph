@@ -644,8 +644,9 @@
           </div>
 
           <div class="flex flex-wrap gap-1.5">
-            <button id="bindRecordBtn" class="btn-primary flex-1">📌 選擇並記住 Read_record.json</button>
-            <button id="resyncBtn" class="btn-outline" title="直接從已記住的檔案重新讀取，免重選路徑">🔄 重新同步</button>
+            <button id="bindDirBtn" class="btn-primary flex-1" title="選擇 ArkPlots 安裝或專案資料夾，自動定位 Read_record.json、Plotline.json 與 covers 封面圖">📁 綁定 ArkPlots 資料夾 (含封面)</button>
+            <button id="bindRecordBtn" class="btn-outline" title="僅單獨選取 Read_record.json">📌 單選紀錄</button>
+            <button id="resyncBtn" class="btn-outline" title="直接從已記住的資料夾或檔案重新讀取，免重選路徑">🔄 重新同步</button>
           </div>
 
           <div class="flex items-center justify-between text-xs pt-0.5">
@@ -660,9 +661,10 @@
 
           <div id="syncMsg" class="hidden text-xs prts-subbox px-2.5 py-1.5"></div>
           <p class="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
-            💡 支援直接拖放 <code>Read_record.json</code> 或 <code>Plotline.json</code> 至終端畫面。首次選取後自動寫入 <code>IndexedDB</code> 神經網路快取。
+            💡 點擊「<b>📁 綁定 ArkPlots 資料夾</b>」或直接將 <code>ArkPlots</code> 資料夾／<code>Read_record.json</code> 拖放至畫面，即可自動定位閱讀進度與 <code>covers</code> 活動封面圖。
           </p>
 
+          <input type="file" id="dirFileInput" webkitdirectory directory multiple class="hidden" style="display:none">
           <input type="file" id="recordFileInput" accept=".json,application/json" class="hidden" style="display:none">
           <input type="file" id="plotlineFileInput" accept=".json,application/json" class="hidden" style="display:none">
         </section>
@@ -1291,29 +1293,50 @@ function directSuccessors(id) {
 }
 
 const JPG_COVER_IDS = new Set([11, 16, 23, 32, 39, 48, 50, 58, 67, 69, 77, 79, 81, 89, 102, 105, 106, 108, 109, 113, 117, 125, 128, 134]);
+const customCoverUrls = new Map();
+function clearCustomCoverUrls() {
+  for (const url of customCoverUrls.values()) {
+    try { URL.revokeObjectURL(url); } catch {}
+  }
+  customCoverUrls.clear();
+}
 function getCoverCandidates(id) {
   const numId = Number(id);
   const ext = JPG_COVER_IDS.has(numId) ? 'jpg' : 'png';
   const alt = ext === 'jpg' ? 'png' : 'jpg';
-  return [
+  const list = [];
+  if (customCoverUrls.has(numId)) {
+    list.push(customCoverUrls.get(numId));
+  }
+  list.push(
+    `web/dist/covers/${numId}.${ext}`,
+    `_internal/web/dist/covers/${numId}.${ext}`,
+    `web/public/covers/${numId}.${ext}`,
+    `covers/${numId}.${ext}`,
+    `../web/dist/covers/${numId}.${ext}`,
+    `../_internal/web/dist/covers/${numId}.${ext}`,
+    `../web/public/covers/${numId}.${ext}`,
+    `../covers/${numId}.${ext}`,
+    `../ArkPlots/web/dist/covers/${numId}.${ext}`,
+    `../ArkPlots/_internal/web/dist/covers/${numId}.${ext}`,
+    `../ArkPlots/web/public/covers/${numId}.${ext}`,
+    `../../ArkPlots/web/dist/covers/${numId}.${ext}`,
+    `../../ArkPlots/_internal/web/dist/covers/${numId}.${ext}`,
+    `../../ArkPlots/web/public/covers/${numId}.${ext}`,
     `../arknight-tool-ArkPlots/web/dist/covers/${numId}.${ext}`,
     `../arknight-tool-ArkPlots/web/public/covers/${numId}.${ext}`,
     `../../arknight-tool-ArkPlots/web/dist/covers/${numId}.${ext}`,
     `../../arknight-tool-ArkPlots/web/public/covers/${numId}.${ext}`,
     `obsidian/ArkPlots Vault/Covers/${numId}.${ext}`,
     `../obsidian/ArkPlots Vault/Covers/${numId}.${ext}`,
-    `covers/${numId}.${ext}`,
-    `../covers/${numId}.${ext}`,
-    `web/dist/covers/${numId}.${ext}`,
-    `web/public/covers/${numId}.${ext}`,
-    `../arknight-tool-ArkPlots/web/dist/covers/${numId}.${alt}`,
-    `../../arknight-tool-ArkPlots/web/dist/covers/${numId}.${alt}`,
     `web/dist/covers/${numId}.${alt}`,
-    `file:///m:/Github/arknight-tool-ArkPlots/web/dist/covers/${numId}.${ext}`,
-    `file:///m:/Github/arknight-tool-ArkPlots/web/public/covers/${numId}.${ext}`,
-    `file:///m:/Github/arknight-tool-ArkPlots/obsidian/ArkPlots%20Vault/Covers/${numId}.${ext}`,
-    `file:///m:/Github/arknight-tool-ArkPlots/web/dist/covers/${numId}.${alt}`,
-  ];
+    `_internal/web/dist/covers/${numId}.${alt}`,
+    `../ArkPlots/web/dist/covers/${numId}.${alt}`,
+    `../ArkPlots/_internal/web/dist/covers/${numId}.${alt}`,
+    `../arknight-tool-ArkPlots/web/dist/covers/${numId}.${alt}`,
+    `../../arknight-tool-ArkPlots/web/dist/covers/${numId}.${alt}`
+  );
+  return list;
 }
 
 function statusBadgeHtml(st) {
@@ -1748,10 +1771,176 @@ cv.addEventListener('wheel', e => {
 new ResizeObserver(resize).observe(cv);
 new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
-// ---------- File Binding, Persistent Memory & Auto-Watch ----------
+// ---------- File & Directory Binding, Cover Auto-Resolution & Auto-Watch ----------
+let boundDirHandle = null;
 let boundRecordHandle = null;
 let boundPlotlineHandle = null;
 let lastObservedModTime = 0;
+
+async function getNestedDirHandle(rootDir, segments) {
+  let cur = rootDir;
+  for (const seg of segments) {
+    try {
+      cur = await cur.getDirectoryHandle(seg);
+    } catch {
+      return null;
+    }
+  }
+  return cur;
+}
+
+async function getNestedFileHandle(rootDir, segments) {
+  if (!segments.length) return null;
+  const dir = await getNestedDirHandle(rootDir, segments.slice(0, -1));
+  if (!dir) return null;
+  try {
+    return await dir.getFileHandle(segments[segments.length - 1]);
+  } catch {
+    return null;
+  }
+}
+
+async function scanCoversFromDirHandle(rootDir) {
+  const candidateSubpaths = [
+    ['web', 'dist', 'covers'],
+    ['_internal', 'web', 'dist', 'covers'],
+    ['web', 'public', 'covers'],
+    ['covers'],
+    ['dist', 'ArkPlots', '_internal', 'web', 'dist', 'covers'],
+    ['dist', 'ArkPlots', 'web', 'dist', 'covers'],
+    ['ArkPlots Vault', 'Covers'],
+    ['obsidian', 'ArkPlots Vault', 'Covers'],
+    [],
+  ];
+  for (const sub of candidateSubpaths) {
+    const dir = await getNestedDirHandle(rootDir, sub);
+    if (!dir || typeof dir.entries !== 'function') continue;
+    const found = [];
+    try {
+      for await (const [name, entry] of dir.entries()) {
+        if (entry.kind === 'file') {
+          const m = /^(\d+)\.(png|jpg|jpeg|webp)$/i.exec(name);
+          if (m) found.push([Number(m[1]), entry]);
+        }
+      }
+    } catch {}
+    if (found.length > 0) {
+      clearCustomCoverUrls();
+      await Promise.all(found.map(async ([numId, entry]) => {
+        try {
+          const file = await entry.getFile();
+          customCoverUrls.set(numId, URL.createObjectURL(file));
+        } catch {}
+      }));
+      return customCoverUrls.size;
+    }
+  }
+  return 0;
+}
+
+async function readFromArkPlotsDirHandle(dirHandle, requestPerm = false) {
+  if (!dirHandle) return false;
+  try {
+    let perm = 'granted';
+    if (typeof dirHandle.queryPermission === 'function') {
+      perm = await dirHandle.queryPermission({ mode: 'read' });
+      if (perm !== 'granted' && requestPerm && typeof dirHandle.requestPermission === 'function') {
+        perm = await dirHandle.requestPermission({ mode: 'read' });
+      }
+    }
+    if (perm !== 'granted') {
+      $('handleStatus').textContent = `📁 已記住資料夾 ${dirHandle.name}（點「重新同步」授權載入紀錄與封面）`;
+      return false;
+    }
+    boundDirHandle = dirHandle;
+    await saveFileHandle('arkplots_dir', dirHandle);
+
+    // 1. Auto-locate Plotline.json
+    const plotlineCandidates = [['Plotline.json'], ['dist', 'ArkPlots', 'Plotline.json']];
+    for (const segs of plotlineCandidates) {
+      const ph = await getNestedFileHandle(dirHandle, segs);
+      if (ph) {
+        await readFromPlotlineHandle(ph, false);
+        break;
+      }
+    }
+
+    // 2. Auto-locate covers directory (web/dist/covers, _internal/web/dist/covers, etc.)
+    const coverCount = await scanCoversFromDirHandle(dirHandle);
+
+    // 3. Auto-locate Read_record.json
+    let recordLoaded = false;
+    const recordCandidates = [['Read_record.json'], ['user_data', 'Read_record.json'], ['dist', 'ArkPlots', 'Read_record.json']];
+    for (const segs of recordCandidates) {
+      const rh = await getNestedFileHandle(dirHandle, segs);
+      if (rh) {
+        recordLoaded = await readFromRecordHandle(rh, false);
+        break;
+      }
+    }
+
+    lastTipKey = '';
+    updateSelectedPanel();
+
+    const dirLabel = dirHandle.name || 'ArkPlots';
+    if (recordLoaded || coverCount > 0) {
+      $('handleStatus').textContent = `📁 已綁定 ${dirLabel}（${recordLoaded ? 'Read_record.json' : '無紀錄檔'}${coverCount ? ` + ${coverCount} 張封面` : ''}）`;
+      showSyncMessage(`✅ 已從資料夾「${dirLabel}」自動載入${recordLoaded ? ' Read_record.json' : ''}${coverCount ? ` 並定位 ${coverCount} 張活動封面圖` : ''}`);
+      return true;
+    } else {
+      showSyncMessage(`⚠️ 在資料夾「${dirLabel}」中未找到 Read_record.json 或 covers 封面圖目錄`, true);
+      return false;
+    }
+  } catch (err) {
+    showSyncMessage(`⚠️ 資料夾讀取失敗：${err.message || err}`, true);
+    return false;
+  }
+}
+
+async function handleDirectoryFileList(fileList) {
+  if (!fileList || !fileList.length) return;
+  const files = Array.from(fileList);
+  let recordFile = null;
+  let plotlineFile = null;
+  const coverFiles = [];
+
+  for (const f of files) {
+    const relPath = (f.webkitRelativePath || f.name || '').replace(/\\/g, '/');
+    const baseName = f.name || relPath.split('/').pop();
+    if (/^Read_record\.json$/i.test(baseName) && (!recordFile || relPath.split('/').length < (recordFile.webkitRelativePath || '').split('/').length)) {
+      recordFile = f;
+    } else if (/^Plotline\.json$/i.test(baseName) && !plotlineFile) {
+      plotlineFile = f;
+    } else {
+      const m = /^(\d+)\.(png|jpg|jpeg|webp)$/i.exec(baseName);
+      if (m && (/\/covers\//i.test(relPath) || !relPath.includes('/'))) {
+        coverFiles.push([Number(m[1]), f]);
+      }
+    }
+  }
+
+  if (plotlineFile) {
+    try {
+      applyPlotlineData(JSON.parse(await plotlineFile.text()), plotlineFile.name);
+    } catch {}
+  }
+  if (coverFiles.length > 0) {
+    clearCustomCoverUrls();
+    for (const [numId, f] of coverFiles) {
+      customCoverUrls.set(numId, URL.createObjectURL(f));
+    }
+  }
+  if (recordFile) {
+    await handleSelectedJsonText(await recordFile.text(), recordFile.name, 'cache');
+  }
+  lastTipKey = '';
+  updateSelectedPanel();
+  if (recordFile || coverFiles.length > 0) {
+    showSyncMessage(`✅ 已載入資料夾（${recordFile ? 'Read_record.json' : ''}${coverFiles.length ? ` + ${coverFiles.length} 張封面圖` : ''}）`);
+  } else {
+    showSyncMessage('⚠️ 所選資料夾內未找到 Read_record.json 或 covers 封面圖', true);
+  }
+}
 
 function applyRecordsData(recordsObj, meta) {
   const normalized = normalizeRecords(recordsObj);
@@ -1840,7 +2029,7 @@ async function readFromRecordHandle(handle, requestPerm = false) {
     applyRecordsData(parsed, meta);
     boundRecordHandle = handle;
     await saveFileHandle('read_record', handle);
-    $('handleStatus').textContent = `📌 已記住並連線：${meta.fileName}`;
+    $('handleStatus').textContent = `📌 已記住並連線：${meta.fileName}${customCoverUrls.size ? `（+${customCoverUrls.size} 張封面）` : ''}`;
     showSyncMessage(`✅ 已同步 ${meta.fileName}（更新時間：${new Date(meta.lastModified).toLocaleTimeString()}）`);
     return true;
   } catch (err) {
@@ -1872,6 +2061,38 @@ async function handleSelectedJsonText(text, fileName, sourceType = 'file') {
     ? `📌 已記住並連線：${meta.fileName}`
     : `💾 已快取記憶：${meta.fileName}`;
   showSyncMessage(`✅ 已載入並記住 ${meta.fileName}`);
+}
+
+if ($('bindDirBtn')) {
+  $('bindDirBtn').onclick = async () => {
+    if (typeof window.showDirectoryPicker === 'function') {
+      try {
+        const dirHandle = await window.showDirectoryPicker({
+          id: 'arkplots-root-dir',
+          mode: 'read',
+        });
+        if (dirHandle) {
+          await readFromArkPlotsDirHandle(dirHandle, true);
+        }
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+      }
+    }
+    if ($('dirFileInput')) $('dirFileInput').click();
+  };
+}
+
+if ($('dirFileInput')) {
+  $('dirFileInput').onchange = async e => {
+    try {
+      await handleDirectoryFileList(e.target.files);
+    } catch (err) {
+      showSyncMessage(`⚠️ 資料夾讀取失敗：${err.message || err}`, true);
+    } finally {
+      e.target.value = '';
+    }
+  };
 }
 
 $('bindRecordBtn').onclick = async () => {
@@ -1939,6 +2160,13 @@ $('plotlineFileInput').onchange = async e => {
 };
 
 $('resyncBtn').onclick = async () => {
+  if (!boundDirHandle) {
+    boundDirHandle = await loadFileHandle('arkplots_dir');
+  }
+  if (boundDirHandle) {
+    const ok = await readFromArkPlotsDirHandle(boundDirHandle, true);
+    if (ok) return;
+  }
   if (!boundPlotlineHandle) {
     boundPlotlineHandle = await loadFileHandle('plotline');
   }
@@ -1954,9 +2182,9 @@ $('resyncBtn').onclick = async () => {
     const cached = safeGetLS(STORAGE_KEYS.RECORDS);
     if (cached) {
       applyRecordsData(cached, safeGetLS(STORAGE_KEYS.RECORDS_META));
-      showSyncMessage('💾 已從瀏覽器快取重新載入紀錄（若需綁定新檔案請點左側按鈕）');
+      showSyncMessage('💾 已從瀏覽器快取重新載入紀錄（若需綁定資料夾請點「📁 綁定 ArkPlots 資料夾」）');
     } else {
-      showSyncMessage('ℹ️ 尚未綁定本機 Read_record.json，請先點擊「選擇並記住 Read_record.json」');
+      showSyncMessage('ℹ️ 尚未綁定本機資料夾或 Read_record.json，請先點擊「📁 綁定 ArkPlots 資料夾」');
     }
   }
 };
@@ -1966,6 +2194,8 @@ $('resetDefaultBtn').onclick = async () => {
   safeRemoveLS(STORAGE_KEYS.RECORDS_META);
   safeRemoveLS(STORAGE_KEYS.PLOTLINE);
   await clearFileHandles();
+  clearCustomCoverUrls();
+  boundDirHandle = null;
   boundRecordHandle = null;
   boundPlotlineHandle = null;
   DATA = DEFAULT_DATA.map(d => ({ ...d, country: [...d.country], power: [...d.power], topic: [...d.topic], nec: [...d.nec] }));
@@ -1988,7 +2218,7 @@ $('autoWatch').onchange = e => {
   }
 };
 
-// Drag & Drop support anywhere on the page
+// Drag & Drop support anywhere on the page (supports dropping ArkPlots folder OR JSON files)
 window.addEventListener('dragover', e => {
   e.preventDefault();
   $('sourceCard').classList.add('drop-active');
@@ -2004,6 +2234,10 @@ window.addEventListener('drop', async e => {
   try {
     if (e.dataTransfer.items && e.dataTransfer.items[0] && typeof e.dataTransfer.items[0].getAsFileSystemHandle === 'function') {
       const handle = await e.dataTransfer.items[0].getAsFileSystemHandle();
+      if (handle && handle.kind === 'directory') {
+        await readFromArkPlotsDirHandle(handle, true);
+        return;
+      }
       if (handle && handle.kind === 'file') {
         const file = await handle.getFile();
         const text = await file.text();
@@ -2085,6 +2319,12 @@ async function initPersistence() {
   buildEmojis();
   refresh();
 
+  const savedDirHandle = await loadFileHandle('arkplots_dir');
+  if (savedDirHandle) {
+    boundDirHandle = savedDirHandle;
+    const ok = await readFromArkPlotsDirHandle(savedDirHandle, false);
+    if (ok) return;
+  }
   const savedPlotlineHandle = await loadFileHandle('plotline');
   if (savedPlotlineHandle) {
     boundPlotlineHandle = savedPlotlineHandle;
@@ -2093,7 +2333,9 @@ async function initPersistence() {
   const savedHandle = await loadFileHandle('read_record');
   if (savedHandle) {
     boundRecordHandle = savedHandle;
-    $('handleStatus').textContent = `📌 已記住檔案：${savedHandle.name || 'Read_record.json'}`;
+    if (!boundDirHandle) {
+      $('handleStatus').textContent = `📌 已記住檔案：${savedHandle.name || 'Read_record.json'}`;
+    }
     await readFromRecordHandle(savedHandle, false);
   }
 }
