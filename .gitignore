@@ -4,6 +4,9 @@ user_data/Read_record.json
 # Generated Obsidian Vault (local output)
 obsidian/ArkPlots Vault/
 
+# Local release builds & zip archives
+release/
+
 # Python cache & OS files
 __pycache__/
 *.py[cod]

@@ -1,7 +1,7 @@
 # AI 維護速查手冊：行號熱區、資料型別、函式索引表與呼叫圖 (`v1`)
 
 - **文件性質 (Type)**：Living Technical Reference（專供 AI Agent 快速定位程式碼與節省 Context 瀏覽時間）
-- **對應主程式 (`v1` 預設版)**：[`/index.html`](file:///m:/Github/ArkPlots-Graph/index.html)（與同內容別名 [`/ArkPlots-Graph.html`](file:///m:/Github/ArkPlots-Graph/ArkPlots-Graph.html)，為 **`theme:PRTS` 羅德島戰術終端版**，共 2,138 行）
+- **對應主程式 (`v1` 唯一預設入口)**：[`/index.html`](file:///m:/Github/ArkPlots-Graph/index.html)（**`theme:PRTS` 羅德島戰術終端版**，共 2,138 行）
 - **對應主題與匯出模組**：
   - 🚧 開發預覽版：[`/themes/ArkPlots-Graph-endfield.html`](file:///m:/Github/ArkPlots-Graph/themes/ArkPlots-Graph-endfield.html)（`theme:終末地` 塔衛二工程藍圖版，共 2,113 行）
   - 🛠️ 開發簡約版：[`/themes/ArkPlots-Graph-dev.html`](file:///m:/Github/ArkPlots-Graph/themes/ArkPlots-Graph-dev.html)（保持外觀極簡的開發測試版，共 1,567 行）
@@ -17,13 +17,13 @@
 ## 1. 檔案行號熱區索引 (File Map & Line-Range Hotspots — 以預設版 `index.html` 為基準)
 
 > [!TIP]
-> **給後續維護的 AI Agent**：[`index.html`](file:///m:/Github/ArkPlots-Graph/index.html) 中 **第 734 行是內嵌的 134 部劇情單行 JSON 快照 (`DEFAULT_DATA`)**。請直接根據下表鎖定行號區間呼叫 `view_file(StartLine, EndLine)`，無須從頭掃描整份檔案。
+> **給後續維護的 AI Agent**：[`index.html`](file:///m:/Github/ArkPlots-Graph/index.html) 中 **第 734 行是內嵌的 134 部劇情單行 JSON 快照 (`DEFAULT_DATA`，預設全部為 `"未读"`)**。請直接根據下表鎖定行號區間呼叫 `view_file(StartLine, EndLine)`，無須從頭掃描整份檔案。
 
 | 區段名稱 | 行號區間 (`index.html` PRTS 版) | 行號區間 (`themes/ArkPlots-Graph-dev.html` 簡約版) | 職責說明與常見修改場景 |
 | --- | --- | --- | --- |
 | **1. CSS 變數、PRTS 戰術切角與原生 Layout 保底** | [`L1–L529`](file:///m:/Github/ArkPlots-Graph/index.html#L1-L529) | [`L1–L220`](file:///m:/Github/ArkPlots-Graph/themes/ArkPlots-Graph-dev.html#L1-L220) | 深色 PRTS 終端 (`:root`) 與淺色醫療室 (`html.light`) 變數、`.prts-panel` 45° 切角、`#prtsOverlay` 點陣掃描線、`.chip` 反色高亮、無外網原生 CSS Fallback |
 | **2. HTML DOM 結構（頂部雷達畫布＋下方四欄設定）** | [`L530–L727`](file:///m:/Github/ArkPlots-Graph/index.html#L530-L727) | [`L221–L380`](file:///m:/Github/ArkPlots-Graph/themes/ArkPlots-Graph-dev.html#L221-L380) | PRTS 頂部導覽列 (`v1`)、滿版畫布 `<canvas id="graph">`、右側懸浮檔案卡 `#selCard`、左下角 `#legend`、Hover 卡片 `#tip`、下方四欄 `#settingsSection`（含 `#sanityBarFill` 理智同步率條） |
-| **3. 內嵌預設資料快照 (`DEFAULT_DATA`)** | [`L728–L738`](file:///m:/Github/ArkPlots-Graph/index.html#L728-L738) | [`L381–L395`](file:///m:/Github/ArkPlots-Graph/themes/ArkPlots-Graph-dev.html#L381-L395) | 134 部預清理後的 `NormalizedPlot[]` 陣列、`DEFAULT_RECORDS`、`VALID_STATUSES` |
+| **3. 內嵌預設資料快照 (`DEFAULT_DATA`)** | [`L728–L738`](file:///m:/Github/ArkPlots-Graph/index.html#L728-L738) | [`L381–L395`](file:///m:/Github/ArkPlots-Graph/themes/ArkPlots-Graph-dev.html#L381-L395) | 134 部預清理後的 `NormalizedPlot[]` 陣列（預設全數 `"status": "未读"`）、`DEFAULT_RECORDS`、`VALID_STATUSES` |
 | **4. 儲存層與 IndexedDB Handle 管理** | [`L739–L831`](file:///m:/Github/ArkPlots-Graph/index.html#L739-L831) | [`L396–L485`](file:///m:/Github/ArkPlots-Graph/themes/ArkPlots-Graph-dev.html#L396-L485) | `STORAGE_KEYS`、`openHandleDB()`、`saveFileHandle()`、`loadFileHandle()`、`clearFileHandles()`、`safeGetLS/SetLS/RemoveLS()` |
 | **5. 資料清理與拓撲狀態計算引擎** | [`L832–L949`](file:///m:/Github/ArkPlots-Graph/index.html#L832-L949) | [`L486–L607`](file:///m:/Github/ArkPlots-Graph/themes/ArkPlots-Graph-dev.html#L486-L607) | `normalizePlotline()`、`normalizeRecords()`、全域圖譜變數 (`DATA`, `byId`, `EDGES`, `deg`, `inDeg`)、`recomputeGraphState()` |
 | **6. 配色群組、Emoji 方案與 UI 面板渲染** | [`L950–L1204`](file:///m:/Github/ArkPlots-Graph/index.html#L950-L1204) | [`L608–L811`](file:///m:/Github/ArkPlots-Graph/themes/ArkPlots-Graph-dev.html#L608-L811) | `getPresets()`（含 `prts_tactical`）、`EMO`、UI 狀態 `S`、`persistUIState()`、`stem()`、`colorOf()`、`updateSourcePanel()`、`buildPresets()`、`buildEmojis()`、`refresh()`、`renderSide()` |
